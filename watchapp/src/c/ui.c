@@ -7,8 +7,8 @@
 #define BOTTOM_BAR_HEIGHT 18
 #define ARROW_BOX 54
 #define MARKER_FRACTION_PERCENT 70
-#define CLOCK_WIDTH_24H 68
-#define CLOCK_WIDTH_12H 76
+#define CLOCK_WIDTH_24H 52
+#define CLOCK_WIDTH_12H 72
 #define CLOCK_TEXT_LEN 12
 
 GRect ui_map_area(GRect bounds) {
@@ -79,8 +79,8 @@ static void draw_top_bar(GContext *ctx, GRect bounds, const NavState *state) {
   draw_text(ctx, now, wide_clock ? FONT_KEY_GOTHIC_24_BOLD : FONT_KEY_GOTHIC_28_BOLD,
             GRect(bounds.origin.x + bounds.size.w - clock_w - 2, bounds.origin.y + (wide_clock ? 2 : -2), clock_w, 32),
             GTextAlignmentRight);
-  draw_text(ctx, state->distance, FONT_KEY_GOTHIC_28_BOLD,
-            GRect(text_x, bounds.origin.y - 2, text_w - clock_w - 2, 32), GTextAlignmentLeft);
+  draw_text(ctx, state->distance, wide_clock ? FONT_KEY_GOTHIC_24_BOLD : FONT_KEY_GOTHIC_28_BOLD,
+            GRect(text_x, bounds.origin.y + (wide_clock ? 2 : -2), text_w - clock_w - 2, 32), GTextAlignmentLeft);
   const char *street = state->street[0] ? state->street : state->instruction;
   draw_text(ctx, street, FONT_KEY_GOTHIC_18, GRect(text_x, bounds.origin.y + 30, text_w, 24),
             GTextAlignmentLeft);
