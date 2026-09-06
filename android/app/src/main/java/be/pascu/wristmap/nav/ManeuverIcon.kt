@@ -1,31 +1,9 @@
 package be.pascu.wristmap.nav
 
-import android.graphics.Bitmap
-
 object ManeuverIcon {
     const val SIZE = 40
     const val ROW_BYTES = 5
     const val BYTES = ROW_BYTES * SIZE
-
-    fun pack(source: Bitmap?): ByteArray? {
-        if (source == null) return null
-        return try {
-            val software =
-                if (source.config == Bitmap.Config.HARDWARE) {
-                    source.copy(Bitmap.Config.ARGB_8888, false)
-                } else {
-                    source
-                }
-            val scaled = Bitmap.createScaledBitmap(software, SIZE, SIZE, true)
-            val pixels = IntArray(SIZE * SIZE)
-            scaled.getPixels(pixels, 0, SIZE, 0, 0, SIZE, SIZE)
-            if (scaled !== software) scaled.recycle()
-            if (software !== source) software.recycle()
-            packPixels(pixels)
-        } catch (e: Throwable) {
-            null
-        }
-    }
 
     fun packPixels(pixels: IntArray): ByteArray {
         val translucent = pixels.any { alpha(it) < 250 }

@@ -15,7 +15,7 @@ import android.widget.TextView
 
 data class NotificationRead(
     val raw: RawNotification,
-    val icon: Bitmap?,
+    val arrow: ByteArray?,
 )
 
 object GoogleMapsNotification {
@@ -78,8 +78,21 @@ object GoogleMapsNotification {
 
         if (lines.isEmpty()) return null
         val rerouting = lines.any { it.contains("rerout", ignoreCase = true) || it.contains("recalcul", ignoreCase = true) }
-        return NotificationRead(RawNotification(lines.toList(), rerouting), icon)
+        return NotificationRead(RawNotification(lines.toList(), rerouting), icon?.let { packArrow(it) })
     }
+
+    private fun packArrow(source: Bitmap): ByteArray? =
+        try {
+            val software = if (source.config == Bitmap.Config.HARDWARE) source.copy(Bitmap.Config.ARGB_8888, false) else source
+            val scaled = Bitmap.createScaledBitmap(software, ManeuverIcon.SIZE, ManeuverIcon.SIZE, true)
+            val pixels = IntArray(ManeuverIcon.SIZE * ManeuverIcon.SIZE)
+            scaled.getPixels(pixels, 0, ManeuverIcon.SIZE, 0, 0, ManeuverIcon.SIZE, ManeuverIcon.SIZE)
+            if (scaled !== software) scaled.recycle()
+            if (software !== source) software.recycle()
+            ManeuverIcon.packPixels(pixels)
+        } catch (e: Throwable) {
+            null
+        }
 
     private fun addLine(
         into: MutableSet<String>,

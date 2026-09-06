@@ -22,6 +22,16 @@ class DistanceTest {
     }
 
     @Test
+    fun acceptsEveryUnitSpelling() {
+        assertEquals(1.8288, Distance.toMeters("2 yards")!!, 0.001)
+        assertEquals(0.9144, Distance.toMeters("1 yd")!!, 0.001)
+        assertEquals(3218.688, Distance.toMeters("2 miles")!!, 0.001)
+        assertEquals(3.048, Distance.toMeters("10 feet")!!, 0.001)
+        assertEquals(5.0, Distance.toMeters("5 meters")!!, 0.001)
+        assertEquals(5.0, Distance.toMeters("5 metres")!!, 0.001)
+    }
+
+    @Test
     fun rejectsOtherText() {
         assertNull(Distance.toMeters("14 min"))
         assertFalse(Distance.isDistance("Turn left"))

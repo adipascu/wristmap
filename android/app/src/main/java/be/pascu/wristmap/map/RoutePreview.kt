@@ -53,12 +53,13 @@ object RoutePreview {
         val named = tiles.flatMap { tile -> tile.namedRoads.map { relative(tile, it, x, y) } }
         val wanted = Names.normalize(nextStreetName)
         val matching = if (wanted.isEmpty()) emptyList() else named.filter { Names.matches(it.road.normalizedNames, wanted) }
+        val nearestNamed = nearest(named, 0f, 0f)
         val currentRoad =
-            nearest(named, 0f, 0f)
-                ?.takeIf { it.distance * metersPerUnit <= CURRENT_ROAD_MAX_M }
-                ?.road
-                ?.road
-                ?.displayName
+            if (nearestNamed != null && nearestNamed.distance * metersPerUnit <= CURRENT_ROAD_MAX_M) {
+                nearestNamed.road.road.displayName
+            } else {
+                null
+            }
 
         if (distanceMeters == null) {
             return Preview(FloatArray(0), 0f, 0f, false, false, currentRoad, matching.map { it.points })

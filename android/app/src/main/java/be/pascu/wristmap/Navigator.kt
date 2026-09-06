@@ -23,7 +23,6 @@ import be.pascu.wristmap.map.TileStore
 import be.pascu.wristmap.map.WebMercator
 import be.pascu.wristmap.nav.GoogleMapsNotification
 import be.pascu.wristmap.nav.Maneuver
-import be.pascu.wristmap.nav.ManeuverIcon
 import be.pascu.wristmap.nav.MorseCue
 import be.pascu.wristmap.nav.NavParser
 import be.pascu.wristmap.nav.NavState
@@ -342,14 +341,14 @@ object Navigator {
     private suspend fun handleNotification(sbn: StatusBarNotification) {
         val read = GoogleMapsNotification.read(app, sbn) ?: return
         val parsed = NavParser.parse(read.raw)
-        val plausible = sbn.id == 1 || parsed.distance.isNotEmpty() || read.icon != null
+        val plausible = sbn.id == 1 || parsed.distance.isNotEmpty() || read.arrow != null
         if (!plausible) return
         val previous = navState
         val starting = !previous.active || demoMode
         demoMode = false
         navKey = sbn.key
         navState = parsed
-        ManeuverIcon.pack(read.icon)?.let { arrow = it }
+        read.arrow?.let { arrow = it }
         update { copy(navState = parsed, rawLines = read.raw.lines) }
         if (starting) {
             Log.i(TAG, "navigation started from notification ${sbn.key}")
@@ -485,7 +484,9 @@ object Navigator {
         val tileList = if (hasFix) withContext(Dispatchers.IO) { loadTiles(lat, lon, zoom, width, height) } else emptyList()
         val preview = if (hasFix) buildPreview(lat, lon, heading, state, tileList) else null
         val bitmap = renderer.render(MapRenderer.Spec(width, height, lat, lon, heading, zoom, tileList, preview, hasFix))
-        val data = FrameEncoder.encode(bitmap)
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        val data = FrameEncoder.encode(pixels, width, height)
         withContext(Dispatchers.IO) { saveDebugFrame(bitmap, width, height, data) }
         val started = System.currentTimeMillis()
         val result = link.sendFrame(width, height, zoom, data)

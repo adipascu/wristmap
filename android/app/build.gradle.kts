@@ -4,6 +4,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jlleitschuh.gradle.ktlint")
+    id("org.jetbrains.kotlinx.kover")
 }
 
 val keystoreProperties =
@@ -64,6 +65,39 @@ kotlin {
 
 ktlint {
     version.set("1.8.0")
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "be.pascu.wristmap.MainActivity*",
+                    "be.pascu.wristmap.WristmapApp",
+                    "be.pascu.wristmap.Navigator*",
+                    "be.pascu.wristmap.Preferences",
+                    "be.pascu.wristmap.service.*",
+                    "be.pascu.wristmap.pebble.WatchLink*",
+                    "be.pascu.wristmap.pebble.WatchListenerService",
+                    "be.pascu.wristmap.map.MapRenderer*",
+                    "be.pascu.wristmap.map.TileStore*",
+                    "be.pascu.wristmap.nav.GoogleMapsNotification",
+                    "be.pascu.wristmap.nav.NotificationRead",
+                )
+            }
+        }
+        verify {
+            rule {
+                minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.LINE)
+            }
+            rule {
+                minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION)
+            }
+            rule {
+                minBound(99, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+            }
+        }
+    }
 }
 
 dependencies {

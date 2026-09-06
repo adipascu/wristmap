@@ -19,6 +19,7 @@ class AutoZoomTest {
     fun capsZoomWhenCycling() {
         assertEquals(17.0, AutoZoom.choose(lat, height, 20.0, 6f), 0.0)
         assertEquals(17.0, AutoZoom.choose(lat, height, null, 6f), 0.0)
+        assertEquals(17.0, AutoZoom.choose(lat, height, null, null), 0.0)
     }
 
     @Test

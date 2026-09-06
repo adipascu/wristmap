@@ -32,7 +32,7 @@ repos:
         pass_filenames: false
       - id: android-unit-tests
         name: android unit tests
-        entry: android/gradlew -p android -q testDebugUnitTest
+        entry: android/gradlew -p android -q testDebugUnitTest koverVerifyDebug
         language: system
         files: ^android/
         pass_filenames: false
