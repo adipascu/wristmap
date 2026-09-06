@@ -2,7 +2,9 @@
   "name": "wristmap",
   "author": "Adrian Pascu",
   "version": "1.0.0",
-  "keywords": ["pebble-app"],
+  "keywords": [
+    "pebble-app"
+  ],
   "private": true,
   "dependencies": {},
   "pebble": {
@@ -10,12 +12,22 @@
     "uuid": "58b9be94-3f7b-4338-94e5-90890b2ab7a0",
     "sdkVersion": "3",
     "enableMultiJS": false,
-    "targetPlatforms": ["emery", "basalt"],
+    "targetPlatforms": [
+      "emery",
+      "basalt"
+    ],
     "watchapp": {
       "watchface": false
     },
     "resources": {
-      "media": []
+      "media": [
+        {
+          "type": "png",
+          "name": "MENU_ICON",
+          "file": "images/menu_icon.png",
+          "menuIcon": true
+        }
+      ]
     },
     "capabilities": [],
     "companionApp": {
