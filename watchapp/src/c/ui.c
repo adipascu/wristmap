@@ -7,6 +7,9 @@
 #define BOTTOM_BAR_HEIGHT 18
 #define ARROW_BOX 54
 #define MARKER_FRACTION_PERCENT 70
+#define CLOCK_WIDTH_24H 52
+#define CLOCK_WIDTH_12H 72
+#define CLOCK_TEXT_LEN 12
 
 GRect ui_map_area(GRect bounds) {
   return GRect(bounds.origin.x, bounds.origin.y + TOP_BAR_HEIGHT, bounds.size.w,
@@ -47,10 +50,18 @@ static void build_trip_line(const NavState *state, char *out, size_t capacity) {
   }
 }
 
+static void clock_text(char *out, size_t capacity) {
+  clock_copy_time_string(out, capacity);
+}
+
 static void draw_idle(GContext *ctx, GRect bounds) {
-  GRect title = GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 - 44, bounds.size.w - 16, 60);
+  char now[CLOCK_TEXT_LEN];
+  clock_text(now, sizeof(now));
+  GRect clock = GRect(bounds.origin.x + 4, bounds.origin.y + 18, bounds.size.w - 8, 50);
+  draw_text(ctx, now, FONT_KEY_BITHAM_42_BOLD, clock, GTextAlignmentCenter);
+  GRect title = GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 - 20, bounds.size.w - 16, 36);
   draw_text(ctx, "Wristmap", FONT_KEY_GOTHIC_28_BOLD, title, GTextAlignmentCenter);
-  GRect hint = GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 - 6, bounds.size.w - 16, 80);
+  GRect hint = GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 + 16, bounds.size.w - 16, 80);
   draw_text(ctx, "Start walking or cycling directions in Google Maps", FONT_KEY_GOTHIC_18, hint,
             GTextAlignmentCenter);
 }
@@ -61,8 +72,15 @@ static void draw_top_bar(GContext *ctx, GRect bounds, const NavState *state) {
 
   int text_x = bounds.origin.x + ARROW_BOX + 4;
   int text_w = bounds.size.w - ARROW_BOX - 6;
-  draw_text(ctx, state->distance, FONT_KEY_GOTHIC_28_BOLD, GRect(text_x, bounds.origin.y - 2, text_w, 32),
-            GTextAlignmentLeft);
+  char now[CLOCK_TEXT_LEN];
+  clock_text(now, sizeof(now));
+  bool wide_clock = !clock_is_24h_style();
+  int clock_w = wide_clock ? CLOCK_WIDTH_12H : CLOCK_WIDTH_24H;
+  draw_text(ctx, now, wide_clock ? FONT_KEY_GOTHIC_24_BOLD : FONT_KEY_GOTHIC_28_BOLD,
+            GRect(bounds.origin.x + bounds.size.w - clock_w - 2, bounds.origin.y + (wide_clock ? 2 : -2), clock_w, 32),
+            GTextAlignmentRight);
+  draw_text(ctx, state->distance, wide_clock ? FONT_KEY_GOTHIC_24_BOLD : FONT_KEY_GOTHIC_28_BOLD,
+            GRect(text_x, bounds.origin.y + (wide_clock ? 2 : -2), text_w - clock_w - 2, 32), GTextAlignmentLeft);
   const char *street = state->street[0] ? state->street : state->instruction;
   draw_text(ctx, street, FONT_KEY_GOTHIC_18, GRect(text_x, bounds.origin.y + 30, text_w, 24),
             GTextAlignmentLeft);
