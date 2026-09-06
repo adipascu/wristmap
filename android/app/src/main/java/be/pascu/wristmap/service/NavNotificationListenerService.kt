@@ -6,7 +6,6 @@ import be.pascu.wristmap.Navigator
 import be.pascu.wristmap.nav.GoogleMapsNotification
 
 class NavNotificationListenerService : NotificationListenerService() {
-
     override fun onListenerConnected() {
         super.onListenerConnected()
         Navigator.onListenerConnected()

@@ -93,7 +93,8 @@ static bool ensure_bitmap(uint16_t width, uint16_t height) {
   return s_bitmap != NULL;
 }
 
-static bool begin_frame(uint8_t frame, uint16_t width, uint16_t height, uint32_t total, uint16_t zoom) {
+static bool begin_frame(uint8_t frame, uint16_t width, uint16_t height, uint32_t total,
+                        uint16_t zoom) {
   uint32_t expected = ((uint32_t)width * 2 + 7) / 8 * height;
   bool fits = width > 0 && height > 0 && width <= s_max_size.w && height <= s_max_size.h;
   if (total != expected || !fits) {
@@ -227,8 +228,8 @@ void map_frame_draw(GContext *ctx, GRect area, int32_t scale_256, GPoint anchor)
   if (!s_bitmap) {
     return;
   }
-  GRect dest = GRect(area.origin.x + (area.size.w - s_width) / 2, area.origin.y + (area.size.h - s_height) / 2,
-                     s_width, s_height);
+  GRect dest = GRect(area.origin.x + (area.size.w - s_width) / 2,
+                     area.origin.y + (area.size.h - s_height) / 2, s_width, s_height);
   GBitmap *bitmap = s_bitmap;
   if (scale_256 != 256 && ensure_scaled()) {
     render_scaled(scale_256, GPoint(anchor.x - dest.origin.x, anchor.y - dest.origin.y));

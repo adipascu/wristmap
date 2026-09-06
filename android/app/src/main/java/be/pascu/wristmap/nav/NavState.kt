@@ -1,6 +1,8 @@
 package be.pascu.wristmap.nav
 
-enum class Maneuver(val id: Int) {
+enum class Maneuver(
+    val id: Int,
+) {
     UNKNOWN(0),
     STRAIGHT(1),
     TURN_LEFT(2),
@@ -30,8 +32,7 @@ data class NavState(
 ) {
     val hasInstruction: Boolean get() = instruction.isNotEmpty() || street.isNotEmpty()
 
-    fun sameInstruction(other: NavState): Boolean =
-        maneuver == other.maneuver && street == other.street && instruction == other.instruction
+    fun sameInstruction(other: NavState): Boolean = maneuver == other.maneuver && street == other.street && instruction == other.instruction
 
     companion object {
         val STOPPED = NavState(active = false)

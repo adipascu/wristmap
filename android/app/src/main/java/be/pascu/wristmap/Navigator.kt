@@ -65,11 +65,21 @@ object Navigator {
     private enum class ServiceState { STOPPED, STARTING, RUNNING }
 
     private sealed class Event {
-        class Posted(val sbn: StatusBarNotification) : Event()
-        class Removed(val key: String) : Event()
+        class Posted(
+            val sbn: StatusBarNotification,
+        ) : Event()
+
+        class Removed(
+            val key: String,
+        ) : Event()
+
         object ServiceStarted : Event()
+
         object ServiceStopped : Event()
-        class ServiceFailed(val reason: String) : Event()
+
+        class ServiceFailed(
+            val reason: String,
+        ) : Event()
     }
 
     private const val TAG = "Navigator"
@@ -104,17 +114,28 @@ object Navigator {
     val status: StateFlow<Status> = _status
 
     private var sessionId = 0
+
     @Volatile private var navState = NavState.STOPPED
+
     @Volatile private var arrow: ByteArray? = null
+
     @Volatile private var navKey: String? = null
+
     @Volatile private var location: Location? = null
+
     @Volatile private var bearing = 0.0
+
     @Volatile private var zoomOverride: Double? = null
+
     @Volatile private var demoMode = false
+
     @Volatile private var zoomFramePending = false
     private var imminentCueSent = false
+
     @Volatile private var serviceState = ServiceState.STOPPED
+
     @Volatile private var stopPending = false
+
     @Volatile private var fallbackListener: LocationListener? = null
     private var lastFrameEnd = 0L
 
@@ -181,8 +202,14 @@ object Navigator {
 
     private suspend fun handleEvent(event: Event) {
         when (event) {
-            is Event.Posted -> handleNotification(event.sbn)
-            is Event.Removed -> if (event.key == navKey) stopSession("Google Maps notification removed")
+            is Event.Posted -> {
+                handleNotification(event.sbn)
+            }
+
+            is Event.Removed -> {
+                if (event.key == navKey) stopSession("Google Maps notification removed")
+            }
+
             Event.ServiceStarted -> {
                 serviceState = ServiceState.RUNNING
                 if (stopPending) {
@@ -192,10 +219,14 @@ object Navigator {
                     update { copy(serviceText = "location service running" + backgroundLocationHint()) }
                 }
             }
-            Event.ServiceStopped -> if (serviceState == ServiceState.RUNNING) {
-                serviceState = ServiceState.STOPPED
-                update { copy(serviceText = "location service stopped") }
+
+            Event.ServiceStopped -> {
+                if (serviceState == ServiceState.RUNNING) {
+                    serviceState = ServiceState.STOPPED
+                    update { copy(serviceText = "location service stopped") }
+                }
             }
+
             is Event.ServiceFailed -> {
                 serviceState = ServiceState.STOPPED
                 if (stopPending) {
@@ -216,16 +247,26 @@ object Navigator {
         update {
             copy(
                 hasLocation = true,
-                locationText = String.format(
-                    Locale.US, "%.5f, %.5f  ±%.0f m  %.1f m/s  heading %.0f°",
-                    newLocation.latitude, newLocation.longitude, newLocation.accuracy, newLocation.speed, bearing
-                ),
+                locationText =
+                    String.format(
+                        Locale.US,
+                        "%.5f, %.5f  ±%.0f m  %.1f m/s  heading %.0f°",
+                        newLocation.latitude,
+                        newLocation.longitude,
+                        newLocation.accuracy,
+                        newLocation.speed,
+                        bearing,
+                    ),
             )
         }
         requestFrame()
     }
 
-    fun onWatchHello(inboxMax: Int?, width: Int?, height: Int?) {
+    fun onWatchHello(
+        inboxMax: Int?,
+        width: Int?,
+        height: Int?,
+    ) {
         inboxMax?.takeIf { it > 0 }?.let { link.inboxMax = it }
         width?.takeIf { it > 0 }?.let { link.mapWidth = it }
         height?.takeIf { it > 0 }?.let { link.mapHeight = it }
@@ -252,13 +293,14 @@ object Navigator {
         scope.launch {
             val demoSession = session.withLock { startDemo() }
             for ((step, meters) in DEMO_DISTANCES.withIndex()) {
-                val stillRunning = session.withLock {
-                    if (sessionId != demoSession) return@withLock false
-                    setDemoState(meters)
-                    pushNav(relaunch = false, cue = hapticCue(navState, newInstruction = step == 0))
-                    requestFrame()
-                    true
-                }
+                val stillRunning =
+                    session.withLock {
+                        if (sessionId != demoSession) return@withLock false
+                        setDemoState(meters)
+                        pushNav(relaunch = false, cue = hapticCue(navState, newInstruction = step == 0))
+                        requestFrame()
+                        true
+                    }
                 if (!stillRunning) return@launch
                 delay(DEMO_STEP_MS)
             }
@@ -281,17 +323,18 @@ object Navigator {
     }
 
     private fun setDemoState(meters: Int) {
-        val demoState = NavState(
-            active = true,
-            maneuver = Maneuver.TURN_LEFT,
-            distance = "$meters m",
-            distanceMeters = meters.toDouble(),
-            street = DEMO_STREET,
-            instruction = "Turn left onto $DEMO_STREET",
-            eta = "10:45",
-            distRemain = "2.1 km",
-            timeRemain = "14 min",
-        )
+        val demoState =
+            NavState(
+                active = true,
+                maneuver = Maneuver.TURN_LEFT,
+                distance = "$meters m",
+                distanceMeters = meters.toDouble(),
+                street = DEMO_STREET,
+                instruction = "Turn left onto $DEMO_STREET",
+                eta = "10:45",
+                distRemain = "2.1 km",
+                timeRemain = "14 min",
+            )
         navState = demoState
         update { copy(navState = demoState, rawLines = listOf("demo")) }
     }
@@ -320,7 +363,10 @@ object Navigator {
         requestFrame()
     }
 
-    private fun hapticCue(state: NavState, newInstruction: Boolean): ByteArray? {
+    private fun hapticCue(
+        state: NavState,
+        newInstruction: Boolean,
+    ): ByteArray? {
         val distance = state.distanceMeters
         val withinReach = distance != null && distance <= IMMINENT_TURN_METERS
         if (newInstruction) imminentCueSent = withinReach
@@ -370,7 +416,11 @@ object Navigator {
                 NavigationService.stop(app)
                 update { copy(serviceText = "location service stopped") }
             }
-            ServiceState.STARTING -> stopPending = true
+
+            ServiceState.STARTING -> {
+                stopPending = true
+            }
+
             ServiceState.STOPPED -> {}
         }
     }
@@ -385,7 +435,10 @@ object Navigator {
     private fun hasPermission(permission: String): Boolean =
         ContextCompat.checkSelfPermission(app, permission) == PackageManager.PERMISSION_GRANTED
 
-    private suspend fun pushNav(relaunch: Boolean, cue: ByteArray? = null) = navMutex.withLock {
+    private suspend fun pushNav(
+        relaunch: Boolean,
+        cue: ByteArray? = null,
+    ) = navMutex.withLock {
         var result = link.sendNav(navState, arrow, cue)
         if (result == SendResult.AppNotOpen && relaunch) {
             link.launchApp()
@@ -439,18 +492,31 @@ object Navigator {
         val elapsed = System.currentTimeMillis() - started
         update {
             copy(
-                frameText = String.format(
-                    Locale.US, "frame %dx%d, %d B, zoom %.2f, %d tiles, turn %s, sent in %d ms: %s",
-                    width, height, data.size, zoom, tileList.size,
-                    if (preview?.hasTurn == true) (if (preview.onRoad) "on road" else "straight ahead") else "unknown",
-                    elapsed, result,
-                ),
+                frameText =
+                    String.format(
+                        Locale.US,
+                        "frame %dx%d, %d B, zoom %.2f, %d tiles, turn %s, sent in %d ms: %s",
+                        width,
+                        height,
+                        data.size,
+                        zoom,
+                        tileList.size,
+                        if (preview?.hasTurn == true) (if (preview.onRoad) "on road" else "straight ahead") else "unknown",
+                        elapsed,
+                        result,
+                    ),
                 previewVersion = previewVersion + 1,
             )
         }
     }
 
-    private fun buildPreview(lat: Double, lon: Double, heading: Double, state: NavState, tileList: List<TileData>): Preview =
+    private fun buildPreview(
+        lat: Double,
+        lon: Double,
+        heading: Double,
+        state: NavState,
+        tileList: List<TileData>,
+    ): Preview =
         RoutePreview.build(
             WebMercator.toWorldX(lon),
             WebMercator.toWorldY(lat),
@@ -461,7 +527,13 @@ object Navigator {
             WebMercator.metersPerUnit(lat),
         )
 
-    private fun loadTiles(lat: Double, lon: Double, zoom: Double, width: Int, height: Int): List<TileData> {
+    private fun loadTiles(
+        lat: Double,
+        lon: Double,
+        zoom: Double,
+        width: Int,
+        height: Int,
+    ): List<TileData> {
         val radiusUnits = MapRenderer.screenRadiusPixels(width, height) / WebMercator.pixelsPerUnit(zoom)
         val centerX = WebMercator.toWorldX(lon)
         val centerY = WebMercator.toWorldY(lat)
@@ -475,14 +547,22 @@ object Navigator {
         return result
     }
 
-    private fun saveDebugFrame(bitmap: Bitmap, width: Int, height: Int, data: ByteArray) {
+    private fun saveDebugFrame(
+        bitmap: Bitmap,
+        width: Int,
+        height: Int,
+        data: ByteArray,
+    ) {
         runCatching {
             writeAtomically(previewFile) { stream -> bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) }
             writeAtomically(frameFile) { stream -> stream.write(FrameEncoder.toWmf(width, height, data)) }
         }
     }
 
-    private fun writeAtomically(target: File, write: (java.io.OutputStream) -> Unit) {
+    private fun writeAtomically(
+        target: File,
+        write: (java.io.OutputStream) -> Unit,
+    ) {
         val temp = File(target.path + ".tmp")
         temp.outputStream().use(write)
         temp.renameTo(target)
@@ -492,13 +572,21 @@ object Navigator {
         if (fallbackListener != null) return
         if (!hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) return
         val manager = app.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val listener = object : LocationListener {
-            override fun onLocationChanged(location: Location) = onLocation(location)
-            override fun onProviderEnabled(provider: String) {}
-            override fun onProviderDisabled(provider: String) {}
-            @Deprecated("Deprecated in Java")
-            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-        }
+        val listener =
+            object : LocationListener {
+                override fun onLocationChanged(location: Location) = onLocation(location)
+
+                override fun onProviderEnabled(provider: String) {}
+
+                override fun onProviderDisabled(provider: String) {}
+
+                @Deprecated("Deprecated in Java")
+                override fun onStatusChanged(
+                    provider: String?,
+                    status: Int,
+                    extras: Bundle?,
+                ) {}
+            }
         try {
             manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, listener, app.mainLooper)
             fallbackListener = listener

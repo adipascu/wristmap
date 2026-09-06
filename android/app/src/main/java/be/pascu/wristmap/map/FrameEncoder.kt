@@ -28,7 +28,11 @@ object FrameEncoder {
         }
     }
 
-    fun encode(pixels: IntArray, width: Int, height: Int): ByteArray {
+    fun encode(
+        pixels: IntArray,
+        width: Int,
+        height: Int,
+    ): ByteArray {
         val stride = strideOf(width)
         val out = ByteArray(stride * height)
         for (y in 0 until height) {
@@ -49,7 +53,11 @@ object FrameEncoder {
         return encode(pixels, bitmap.width, bitmap.height)
     }
 
-    fun toWmf(width: Int, height: Int, data: ByteArray): ByteArray {
+    fun toWmf(
+        width: Int,
+        height: Int,
+        data: ByteArray,
+    ): ByteArray {
         val out = ByteArray(4 + data.size)
         out[0] = (width and 0xff).toByte()
         out[1] = (width ushr 8).toByte()

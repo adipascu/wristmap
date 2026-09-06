@@ -59,7 +59,8 @@ static void draw_uturn(GContext *ctx, GRect box) {
   GPoint left_top = GPoint(center.x - radius, center.y - side / 10);
   GPoint left_bottom = GPoint(center.x - radius, center.y + side / 10);
   graphics_draw_line(ctx, right_bottom, right_top);
-  graphics_draw_arc(ctx, GRect(center.x - radius, center.y - side / 10 - radius, radius * 2, radius * 2),
+  graphics_draw_arc(ctx,
+                    GRect(center.x - radius, center.y - side / 10 - radius, radius * 2, radius * 2),
                     GOvalScaleModeFitCircle, DEG_TO_TRIGANGLE(270), DEG_TO_TRIGANGLE(450));
   graphics_draw_line(ctx, left_top, left_bottom);
   draw_head(ctx, GPoint(left_bottom.x, left_bottom.y + side / 8), 180, side / 4);

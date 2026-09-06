@@ -26,7 +26,10 @@ class FrameChunksTest {
     fun smallInboxSplitsIntoSequentialChunks() {
         val chunks = FrameChunks.split(1, 200, 152, 15.0, data, 2000)
         assertEquals(4, chunks.size)
-        assertEquals(listOf(0L, 2000L, 4000L, 6000L), chunks.map { (it[Protocol.MAP_OFFSET] as PebbleDictionaryItem.UInt32).value.toLong() })
+        assertEquals(
+            listOf(0L, 2000L, 4000L, 6000L),
+            chunks.map { (it[Protocol.MAP_OFFSET] as PebbleDictionaryItem.UInt32).value.toLong() },
+        )
         assertTrue(chunks[0].containsKey(Protocol.MAP_TOTAL))
         assertFalse(chunks[1].containsKey(Protocol.MAP_TOTAL))
         assertFalse(chunks[1].containsKey(Protocol.MAP_ZOOM))

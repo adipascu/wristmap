@@ -8,13 +8,13 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import android.view.View
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -42,9 +42,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var grantLocation: Button
     private var shownPreviewVersion = -1
 
-    private val permissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        refreshPermissions()
-    }
+    private val permissionRequest =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            refreshPermissions()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,37 +104,56 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshPermissions() {
         val listenerEnabled = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
-        notificationAccess.text = getString(if (listenerEnabled) R.string.notification_access_granted else R.string.notification_access_missing)
+        notificationAccess.text =
+            getString(if (listenerEnabled) R.string.notification_access_granted else R.string.notification_access_missing)
         grantNotificationAccess.visibility = if (listenerEnabled) View.GONE else View.VISIBLE
-        val locationGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val locationGranted =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         locationAccess.text = getString(if (locationGranted) R.string.location_granted else R.string.location_missing)
         grantLocation.visibility = if (locationGranted) View.GONE else View.VISIBLE
-        val backgroundGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
-        backgroundLocationAccess.text = getString(if (backgroundGranted) R.string.background_location_granted else R.string.background_location_missing)
+        val backgroundGranted =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+        backgroundLocationAccess.text =
+            getString(if (backgroundGranted) R.string.background_location_granted else R.string.background_location_missing)
         backgroundLocationAccess.visibility = if (locationGranted) View.VISIBLE else View.GONE
         grantBackgroundLocation.visibility = if (locationGranted && !backgroundGranted) View.VISIBLE else View.GONE
-        val pebbleApps = packageManager.queryIntentServices(Intent(PebbleKitIntents.SEND_DATA), 0).map { it.serviceInfo.packageName }.distinct()
-        pebbleApp.text = if (pebbleApps.isEmpty()) getString(R.string.pebble_app_missing) else getString(R.string.pebble_app_found, pebbleApps.joinToString())
+        val pebbleApps =
+            packageManager
+                .queryIntentServices(
+                    Intent(PebbleKitIntents.SEND_DATA),
+                    0,
+                ).map { it.serviceInfo.packageName }
+                .distinct()
+        pebbleApp.text =
+            if (pebbleApps.isEmpty()) {
+                getString(
+                    R.string.pebble_app_missing,
+                )
+            } else {
+                getString(R.string.pebble_app_found, pebbleApps.joinToString())
+            }
     }
 
     private fun render(status: Navigator.Status) {
         val state = status.navState
-        navStatus.text = buildString {
-            append(if (status.listenerConnected) getString(R.string.listener_connected) else getString(R.string.listener_waiting))
-            append('\n')
-            if (state.active) {
-                append(getString(R.string.navigating)).append('\n')
-                append("${state.distance}  ${state.instruction}").append('\n')
-                append("${state.timeRemain}  ${state.distRemain}  ${state.eta}").append('\n')
-                append(getString(R.string.raw_lines)).append(' ').append(status.rawLines.joinToString(" | "))
-            } else {
-                append(getString(R.string.idle))
+        navStatus.text =
+            buildString {
+                append(if (status.listenerConnected) getString(R.string.listener_connected) else getString(R.string.listener_waiting))
+                append('\n')
+                if (state.active) {
+                    append(getString(R.string.navigating)).append('\n')
+                    append("${state.distance}  ${state.instruction}").append('\n')
+                    append("${state.timeRemain}  ${state.distRemain}  ${state.eta}").append('\n')
+                    append(getString(R.string.raw_lines)).append(' ').append(status.rawLines.joinToString(" | "))
+                } else {
+                    append(getString(R.string.idle))
+                }
             }
-        }
-        linkStatus.text = listOf(status.serviceText, status.locationText, status.watchText, status.navSend, status.frameText)
-            .filter { it.isNotEmpty() }
-            .joinToString("\n")
+        linkStatus.text =
+            listOf(status.serviceText, status.locationText, status.watchText, status.navSend, status.frameText)
+                .filter { it.isNotEmpty() }
+                .joinToString("\n")
         if (status.previewVersion != shownPreviewVersion) {
             shownPreviewVersion = status.previewVersion
             lifecycleScope.launch {

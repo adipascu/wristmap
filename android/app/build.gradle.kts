@@ -3,15 +3,19 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
-val keystoreProperties = Properties().apply {
-    val file = rootProject.file("keystore.properties")
-    if (file.exists()) file.inputStream().use { load(it) }
-}
+val keystoreProperties =
+    Properties().apply {
+        val file = rootProject.file("keystore.properties")
+        if (file.exists()) file.inputStream().use { load(it) }
+    }
 
-fun signingValue(property: String, variable: String): String? =
-    keystoreProperties.getProperty(property) ?: System.getenv(variable)
+fun signingValue(
+    property: String,
+    variable: String,
+): String? = keystoreProperties.getProperty(property) ?: System.getenv(variable)
 
 val releaseStoreFile = signingValue("storeFile", "KEYSTORE_FILE")
 val hasReleaseKeystore = releaseStoreFile != null && rootProject.file(releaseStoreFile).exists()
@@ -56,6 +60,10 @@ android {
 
 kotlin {
     jvmToolchain(21)
+}
+
+ktlint {
+    version.set("1.8.0")
 }
 
 dependencies {

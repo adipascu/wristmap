@@ -18,22 +18,34 @@ class ProtoWriter {
         return this
     }
 
-    fun tag(field: Int, wire: Int): ProtoWriter = varint(((field shl 3) or wire).toLong())
+    fun tag(
+        field: Int,
+        wire: Int,
+    ): ProtoWriter = varint(((field shl 3) or wire).toLong())
 
-    fun string(field: Int, value: String): ProtoWriter {
+    fun string(
+        field: Int,
+        value: String,
+    ): ProtoWriter {
         val bytes = value.toByteArray(Charsets.UTF_8)
         tag(field, 2).varint(bytes.size.toLong())
         out.write(bytes)
         return this
     }
 
-    fun message(field: Int, body: ByteArray): ProtoWriter {
+    fun message(
+        field: Int,
+        body: ByteArray,
+    ): ProtoWriter {
         tag(field, 2).varint(body.size.toLong())
         out.write(body)
         return this
     }
 
-    fun packed(field: Int, values: LongArray): ProtoWriter {
+    fun packed(
+        field: Int,
+        values: LongArray,
+    ): ProtoWriter {
         val inner = ProtoWriter()
         for (value in values) inner.varint(value)
         return message(field, inner.bytes())
@@ -46,23 +58,28 @@ class MvtTest {
     private fun zigzag(value: Int): Long = ((value shl 1) xor (value shr 31)).toLong()
 
     private fun tile(): ByteArray {
-        val feature = ProtoWriter()
-            .packed(2, longArrayOf(0, 0, 1, 1))
-            .tag(3, 0).varint(2)
-            .packed(4, longArrayOf(9, zigzag(10), zigzag(20), 10, zigzag(100), zigzag(0)))
-            .bytes()
+        val feature =
+            ProtoWriter()
+                .packed(2, longArrayOf(0, 0, 1, 1))
+                .tag(3, 0)
+                .varint(2)
+                .packed(4, longArrayOf(9, zigzag(10), zigzag(20), 10, zigzag(100), zigzag(0)))
+                .bytes()
         val minor = ProtoWriter().string(1, "minor").bytes()
         val name = ProtoWriter().string(1, "Rue de la Loi").bytes()
-        val layer = ProtoWriter()
-            .tag(15, 0).varint(2)
-            .string(1, "transportation_name")
-            .message(2, feature)
-            .string(3, "class")
-            .string(3, "name")
-            .message(4, minor)
-            .message(4, name)
-            .tag(5, 0).varint(4096)
-            .bytes()
+        val layer =
+            ProtoWriter()
+                .tag(15, 0)
+                .varint(2)
+                .string(1, "transportation_name")
+                .message(2, feature)
+                .string(3, "class")
+                .string(3, "name")
+                .message(4, minor)
+                .message(4, name)
+                .tag(5, 0)
+                .varint(4096)
+                .bytes()
         return ProtoWriter().message(3, layer).bytes()
     }
 

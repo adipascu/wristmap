@@ -17,9 +17,18 @@ class Preview(
     val nextStreet: List<FloatArray>,
 )
 
-private class RelativeRoad(val points: FloatArray, val road: Road)
+private class RelativeRoad(
+    val points: FloatArray,
+    val road: Road,
+)
 
-private class Snap(val road: RelativeRoad, val segment: Int, val x: Float, val y: Float, val distance: Double)
+private class Snap(
+    val road: RelativeRoad,
+    val segment: Int,
+    val x: Float,
+    val y: Float,
+    val distance: Double,
+)
 
 object RoutePreview {
     private const val SNAP_MAX_M = 40.0
@@ -44,7 +53,12 @@ object RoutePreview {
         val named = tiles.flatMap { tile -> tile.namedRoads.map { relative(tile, it, x, y) } }
         val wanted = Names.normalize(nextStreetName)
         val matching = if (wanted.isEmpty()) emptyList() else named.filter { Names.matches(it.road.normalizedNames, wanted) }
-        val currentRoad = nearest(named, 0f, 0f)?.takeIf { it.distance * metersPerUnit <= CURRENT_ROAD_MAX_M }?.road?.road?.displayName
+        val currentRoad =
+            nearest(named, 0f, 0f)
+                ?.takeIf { it.distance * metersPerUnit <= CURRENT_ROAD_MAX_M }
+                ?.road
+                ?.road
+                ?.displayName
 
         if (distanceMeters == null) {
             return Preview(FloatArray(0), 0f, 0f, false, false, currentRoad, matching.map { it.points })
@@ -77,7 +91,12 @@ object RoutePreview {
         return Preview(path.toFloatArray(), turnX, turnY, true, onRoad, currentRoad, matching.map { it.points })
     }
 
-    private fun relative(tile: TileData, road: Road, x: Double, y: Double): RelativeRoad {
+    private fun relative(
+        tile: TileData,
+        road: Road,
+        x: Double,
+        y: Double,
+    ): RelativeRoad {
         val offsetX = tile.originX - x
         val offsetY = tile.originY - y
         val points = FloatArray(road.points.size)
@@ -90,7 +109,11 @@ object RoutePreview {
         return RelativeRoad(points, road)
     }
 
-    private fun nearest(roads: List<RelativeRoad>, px: Float, py: Float): Snap? {
+    private fun nearest(
+        roads: List<RelativeRoad>,
+        px: Float,
+        py: Float,
+    ): Snap? {
         var best: Snap? = null
         for (road in roads) {
             val points = road.points
@@ -107,7 +130,13 @@ object RoutePreview {
         return best
     }
 
-    private fun snapToRoad(roads: List<RelativeRoad>, headingX: Float, headingY: Float, maxUnits: Double, penaltyUnits: Double): Snap? {
+    private fun snapToRoad(
+        roads: List<RelativeRoad>,
+        headingX: Float,
+        headingY: Float,
+        maxUnits: Double,
+        penaltyUnits: Double,
+    ): Snap? {
         var best: Snap? = null
         var bestScore = Double.MAX_VALUE
         for (road in roads) {
@@ -142,7 +171,14 @@ object RoutePreview {
         var road = snap.road
         var points = road.points
         var segment = snap.segment
-        var forward = alignment(points[segment * 2 + 2] - points[segment * 2], points[segment * 2 + 3] - points[segment * 2 + 1], headingX, headingY) >= 0
+        var forward =
+            alignment(
+                points[segment * 2 + 2] - points[segment * 2],
+                points[segment * 2 + 3] - points[segment * 2 + 1],
+                headingX,
+                headingY,
+            ) >=
+                0
         var x = snap.x
         var y = snap.y
         var directionX = headingX
@@ -224,17 +260,33 @@ object RoutePreview {
         return best
     }
 
-    private fun alignment(ax: Float, ay: Float, bx: Float, by: Float): Double {
+    private fun alignment(
+        ax: Float,
+        ay: Float,
+        bx: Float,
+        by: Float,
+    ): Double {
         val lengthA = sqrt((ax * ax + ay * ay).toDouble())
         val lengthB = sqrt((bx * bx + by * by).toDouble())
         if (lengthA == 0.0 || lengthB == 0.0) return 0.0
         return (ax * bx + ay * by) / (lengthA * lengthB)
     }
 
-    private fun angleBetween(ax: Float, ay: Float, bx: Float, by: Float): Double =
-        Math.toDegrees(acos(alignment(ax, ay, bx, by).coerceIn(-1.0, 1.0)))
+    private fun angleBetween(
+        ax: Float,
+        ay: Float,
+        bx: Float,
+        by: Float,
+    ): Double = Math.toDegrees(acos(alignment(ax, ay, bx, by).coerceIn(-1.0, 1.0)))
 
-    private fun project(ax: Float, ay: Float, bx: Float, by: Float, px: Float, py: Float): FloatArray {
+    private fun project(
+        ax: Float,
+        ay: Float,
+        bx: Float,
+        by: Float,
+        px: Float,
+        py: Float,
+    ): FloatArray {
         val dx = bx - ax
         val dy = by - ay
         val lengthSquared = dx * dx + dy * dy
