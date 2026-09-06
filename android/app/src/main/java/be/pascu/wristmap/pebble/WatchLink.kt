@@ -42,9 +42,9 @@ class WatchLink(context: Context) {
 
     suspend fun sendStopped(): SendResult = send(mapOf(Protocol.NAV_ACTIVE to PebbleDictionaryItem.UInt8(0)))
 
-    suspend fun sendFrame(width: Int, height: Int, data: ByteArray): SendResult {
+    suspend fun sendFrame(width: Int, height: Int, zoom: Double, data: ByteArray): SendResult {
         frameId = (frameId + 1) and 0xff
-        for (chunk in FrameChunks.split(frameId, width, height, data, chunkSize)) {
+        for (chunk in FrameChunks.split(frameId, width, height, zoom, data, chunkSize)) {
             val result = send(chunk)
             if (result != SendResult.Ok) return result
         }

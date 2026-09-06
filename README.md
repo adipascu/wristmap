@@ -41,8 +41,8 @@ is drawn in blue, the turn as a blue dot, and the named street is highlighted in
 When you are off the road network it draws a straight line ahead instead.
 
 Zoom follows the distance to the turn so that the turn is on screen (zoom 14 to 18, capped at
-17 when moving faster than 4 m/s, so cycling gets a wider view). Up and down on the watch
-override it for the rest of the trip.
+17 when moving faster than 4 m/s, so cycling gets a wider view). Swiping on the watch
+overrides it for the rest of the trip.
 
 ## Install
 
@@ -57,8 +57,11 @@ Two parts: the watchapp on the watch and the companion on the phone.
    The app lists what is still missing.
 3. Start walking or cycling directions in Google Maps. The watchapp pops up on its own.
 
-On the watch: up and down zoom the map, select toggles between the map and a big arrow view,
-back leaves the app. A short vibration announces every new instruction.
+On the watch: swipe up to zoom in and down to zoom out. The map scales under your finger
+immediately from the frame it already has, and the phone follows with a properly rendered
+frame within a few hundred milliseconds. Any touch turns the backlight on for five seconds.
+The buttons do nothing except back, which leaves the app. A short vibration announces every
+new instruction.
 
 The companion needs the Core Devices Pebble app (`coredevices.coreapp`). It is the only Android
 app that implements PebbleKit Android 2, which the companion uses to talk to the watch.
@@ -115,6 +118,7 @@ Phone to watch:
 | 22 | `MAP_FRAME` | uint8 | frame id, chunks of another frame are dropped |
 | 23 | `MAP_TOTAL` | uint32 | total packed bytes |
 | 24, 25 | `MAP_OFFSET`, `MAP_DATA` | uint32, bytes | one chunk |
+| 26 | `MAP_ZOOM` | uint16 | zoom of the frame times 100, sent with the first chunk, lets the watch scale it locally while the finger is down |
 
 Chunks of a frame arrive in order: the watch expects each `MAP_OFFSET` to equal the number
 of bytes it already has, ignores a chunk with a lower offset as a duplicate, and drops the
@@ -128,7 +132,7 @@ Watch to phone:
 | 40 | `HELLO` | uint8 | sent when the watchapp starts |
 | 41 | `INBOX_MAX` | uint32 | `app_message_inbox_size_maximum()`, sizes the chunks |
 | 42, 43 | `MAP_VIEW_WIDTH`, `MAP_VIEW_HEIGHT` | uint16 | the map area the watch has |
-| 44 | `ZOOM` | uint8 | 1 zoom in, 2 zoom out |
+| 45 | `ZOOM_LEVEL` | uint16 | wanted zoom times 100, sent while swiping, at most every 120 ms |
 
 Map frames are packed 2 bits per pixel, 4 pixels per byte, most significant bits first, rows
 byte aligned, exactly the layout of `GBitmapFormat2BitPalette`. Palette: 0 white, 1 black,

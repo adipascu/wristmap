@@ -4,12 +4,43 @@
 #include "protocol.h"
 #include "ui.h"
 
+#define PIXELS_PER_ZOOM_LEVEL 60
+#define LIGHT_HOLD_MS 5000
+#define ZOOM_SEND_INTERVAL_MS 120
+#define DEFAULT_ZOOM (17 * ZOOM_SCALE)
+
 static Window *s_window;
 static Layer *s_layer;
-static ViewMode s_view_mode = VIEW_MAP;
+static AppTimer *s_light_timer;
+static AppTimer *s_zoom_timer;
+static bool s_touching;
+static int16_t s_touch_start_y;
+static int32_t s_touch_start_zoom;
+static int32_t s_zoom_target;
+static bool s_zoom_unsent;
+
+static int32_t pow2_256(int32_t exponent_100) {
+  int32_t whole = exponent_100 >= 0 ? exponent_100 / ZOOM_SCALE : -((-exponent_100 + ZOOM_SCALE - 1) / ZOOM_SCALE);
+  int32_t fraction_256 = (exponent_100 - whole * ZOOM_SCALE) * 256 / ZOOM_SCALE;
+  int32_t scaled = 256 + ((fraction_256 * (168 + ((88 * fraction_256) >> 8))) >> 8);
+  return whole >= 0 ? scaled << whole : scaled >> -whole;
+}
+
+static int32_t current_zoom(void) {
+  if (s_zoom_target) {
+    return s_zoom_target;
+  }
+  uint16_t frame_zoom = map_frame_zoom();
+  return frame_zoom ? frame_zoom : DEFAULT_ZOOM;
+}
 
 static void layer_update(Layer *layer, GContext *ctx) {
-  ui_draw(ctx, layer_get_bounds(layer), s_view_mode);
+  int32_t scale_256 = 256;
+  uint16_t frame_zoom = map_frame_zoom();
+  if (frame_zoom && s_zoom_target && s_zoom_target != frame_zoom) {
+    scale_256 = pow2_256(s_zoom_target - frame_zoom);
+  }
+  ui_draw(ctx, layer_get_bounds(layer), scale_256);
 }
 
 static void send_hello(void) {
@@ -25,13 +56,83 @@ static void send_hello(void) {
   app_message_outbox_send();
 }
 
-static void send_zoom(uint8_t direction) {
+static void zoom_timer_fired(void *context);
+
+static void send_zoom_level(void) {
   DictionaryIterator *out;
   if (app_message_outbox_begin(&out) != APP_MSG_OK) {
+    s_zoom_unsent = true;
     return;
   }
-  dict_write_uint8(out, KEY_ZOOM, direction);
+  dict_write_uint16(out, KEY_ZOOM_LEVEL, s_zoom_target);
   app_message_outbox_send();
+  s_zoom_unsent = false;
+}
+
+static void zoom_timer_fired(void *context) {
+  s_zoom_timer = NULL;
+  if (s_zoom_unsent) {
+    send_zoom_level();
+    s_zoom_timer = app_timer_register(ZOOM_SEND_INTERVAL_MS, zoom_timer_fired, NULL);
+  }
+}
+
+static void zoom_changed(void) {
+  layer_mark_dirty(s_layer);
+  s_zoom_unsent = true;
+  if (!s_zoom_timer) {
+    send_zoom_level();
+    s_zoom_timer = app_timer_register(ZOOM_SEND_INTERVAL_MS, zoom_timer_fired, NULL);
+  }
+}
+
+static void light_timer_fired(void *context) {
+  s_light_timer = NULL;
+  light_enable(false);
+}
+
+static void hold_light(void) {
+  light_enable(true);
+  if (s_light_timer) {
+    app_timer_reschedule(s_light_timer, LIGHT_HOLD_MS);
+  } else {
+    s_light_timer = app_timer_register(LIGHT_HOLD_MS, light_timer_fired, NULL);
+  }
+}
+
+static void touch_handler(const TouchEvent *event, void *context) {
+  switch (event->type) {
+    case TouchEvent_Touchdown:
+      hold_light();
+      s_touching = true;
+      s_touch_start_y = event->y;
+      s_touch_start_zoom = current_zoom();
+      break;
+    case TouchEvent_PositionUpdate: {
+      if (!s_touching) {
+        break;
+      }
+      hold_light();
+      int32_t delta = (int32_t)(s_touch_start_y - event->y) * ZOOM_SCALE / PIXELS_PER_ZOOM_LEVEL;
+      int32_t target = s_touch_start_zoom + delta;
+      if (target < ZOOM_MIN) {
+        target = ZOOM_MIN;
+      } else if (target > ZOOM_MAX) {
+        target = ZOOM_MAX;
+      }
+      if (target != s_zoom_target) {
+        s_zoom_target = target;
+        zoom_changed();
+      }
+      break;
+    }
+    case TouchEvent_Liftoff:
+      s_touching = false;
+      if (s_zoom_unsent && !s_zoom_timer) {
+        send_zoom_level();
+      }
+      break;
+  }
 }
 
 static void inbox_received(DictionaryIterator *iter, void *context) {
@@ -39,8 +140,12 @@ static void inbox_received(DictionaryIterator *iter, void *context) {
   NavChange change = nav_state_apply(iter);
   if (was_active && !nav_state_get()->active) {
     map_frame_clear();
+    s_zoom_target = 0;
   }
   bool frame_done = map_frame_apply(iter);
+  if (frame_done && !s_touching && !s_zoom_unsent) {
+    s_zoom_target = 0;
+  }
   if (change & NAV_CHANGE_INSTRUCTION) {
     vibes_short_pulse();
   }
@@ -55,25 +160,6 @@ static void inbox_dropped(AppMessageResult reason, void *context) {
 
 static void outbox_failed(DictionaryIterator *iter, AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_WARNING, "outbox failed: %d", reason);
-}
-
-static void up_click(ClickRecognizerRef recognizer, void *context) {
-  send_zoom(ZOOM_IN);
-}
-
-static void down_click(ClickRecognizerRef recognizer, void *context) {
-  send_zoom(ZOOM_OUT);
-}
-
-static void select_click(ClickRecognizerRef recognizer, void *context) {
-  s_view_mode = s_view_mode == VIEW_MAP ? VIEW_ARROW : VIEW_MAP;
-  layer_mark_dirty(s_layer);
-}
-
-static void click_config(void *context) {
-  window_single_click_subscribe(BUTTON_ID_UP, up_click);
-  window_single_click_subscribe(BUTTON_ID_DOWN, down_click);
-  window_single_click_subscribe(BUTTON_ID_SELECT, select_click);
 }
 
 static void window_load(Window *window) {
@@ -93,7 +179,7 @@ static void init(void) {
   map_frame_init();
   s_window = window_create();
   window_set_background_color(s_window, GColorWhite);
-  window_set_click_config_provider(s_window, click_config);
+  window_set_touch_bridge_disabled(s_window, true);
   window_set_window_handlers(s_window, (WindowHandlers){
     .load = window_load,
     .unload = window_unload,
@@ -105,10 +191,13 @@ static void init(void) {
   app_message_open(app_message_inbox_size_maximum(), 64);
 
   window_stack_push(s_window, true);
+  touch_service_subscribe(touch_handler, NULL);
   send_hello();
 }
 
 static void deinit(void) {
+  touch_service_unsubscribe();
+  light_enable(false);
   window_destroy(s_window);
   map_frame_deinit();
 }

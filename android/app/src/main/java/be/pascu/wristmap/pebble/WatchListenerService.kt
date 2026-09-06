@@ -23,7 +23,7 @@ class WatchListenerService : BasePebbleListenerService() {
                 number(data[Protocol.MAP_VIEW_HEIGHT])?.toInt(),
             )
         }
-        number(data[Protocol.ZOOM])?.let { Navigator.onZoom(it.toInt()) }
+        number(data[Protocol.ZOOM_LEVEL])?.let { Navigator.onZoomLevel(it.toInt()) }
         return ReceiveResult.Ack
     }
 

@@ -6,10 +6,16 @@
 #define TOP_BAR_HEIGHT 58
 #define BOTTOM_BAR_HEIGHT 18
 #define ARROW_BOX 54
+#define MARKER_FRACTION_PERCENT 70
 
 GRect ui_map_area(GRect bounds) {
   return GRect(bounds.origin.x, bounds.origin.y + TOP_BAR_HEIGHT, bounds.size.w,
                bounds.size.h - TOP_BAR_HEIGHT - BOTTOM_BAR_HEIGHT);
+}
+
+GPoint ui_map_anchor(GRect bounds) {
+  GRect area = ui_map_area(bounds);
+  return GPoint(area.origin.x + area.size.w / 2, area.origin.y + area.size.h * MARKER_FRACTION_PERCENT / 100);
 }
 
 static void draw_text(GContext *ctx, const char *text, const char *font_key, GRect frame,
@@ -75,38 +81,16 @@ static void draw_bottom_bar(GContext *ctx, GRect bounds, const NavState *state) 
   draw_text(ctx, trip, FONT_KEY_GOTHIC_14_BOLD, frame, GTextAlignmentCenter);
 }
 
-static void draw_map(GContext *ctx, GRect area) {
-  GBitmap *bitmap = map_frame_bitmap();
-  if (!bitmap) {
+static void draw_map(GContext *ctx, GRect area, int32_t scale_256, GPoint anchor) {
+  if (!map_frame_has_bitmap()) {
     GRect frame = GRect(area.origin.x + 8, area.origin.y + area.size.h / 2 - 12, area.size.w - 16, 40);
     draw_text(ctx, "Waiting for map...", FONT_KEY_GOTHIC_18, frame, GTextAlignmentCenter);
     return;
   }
-  GRect bitmap_bounds = gbitmap_get_bounds(bitmap);
-  GRect dest = GRect(area.origin.x + (area.size.w - bitmap_bounds.size.w) / 2,
-                     area.origin.y + (area.size.h - bitmap_bounds.size.h) / 2,
-                     bitmap_bounds.size.w, bitmap_bounds.size.h);
-  graphics_context_set_compositing_mode(ctx, GCompOpAssign);
-  graphics_draw_bitmap_in_rect(ctx, bitmap, dest);
+  map_frame_draw(ctx, area, scale_256, anchor);
 }
 
-static void draw_arrow_view(GContext *ctx, GRect bounds, const NavState *state) {
-  int box_side = bounds.size.w - 40;
-  if (box_side > bounds.size.h - 90) {
-    box_side = bounds.size.h - 90;
-  }
-  GRect box = GRect(bounds.origin.x + (bounds.size.w - box_side) / 2, bounds.origin.y + 6, box_side, box_side);
-  draw_maneuver(ctx, box, state, box_side / ARROW_SIZE);
-  draw_text(ctx, state->distance, FONT_KEY_GOTHIC_28_BOLD,
-            GRect(bounds.origin.x + 4, box.origin.y + box_side + 2, bounds.size.w - 8, 32), GTextAlignmentCenter);
-  const char *street = state->street[0] ? state->street : state->instruction;
-  int street_y = box.origin.y + box_side + 34;
-  int street_h = bounds.origin.y + bounds.size.h - BOTTOM_BAR_HEIGHT - 2 - street_y;
-  draw_text(ctx, street, FONT_KEY_GOTHIC_18, GRect(bounds.origin.x + 4, street_y, bounds.size.w - 8, street_h),
-            GTextAlignmentCenter);
-}
-
-void ui_draw(GContext *ctx, GRect bounds, ViewMode mode) {
+void ui_draw(GContext *ctx, GRect bounds, int32_t map_scale_256) {
   const NavState *state = nav_state_get();
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_rect(ctx, bounds, 0, GCornerNone);
@@ -114,12 +98,7 @@ void ui_draw(GContext *ctx, GRect bounds, ViewMode mode) {
     draw_idle(ctx, bounds);
     return;
   }
-  if (mode == VIEW_ARROW) {
-    draw_arrow_view(ctx, bounds, state);
-    draw_bottom_bar(ctx, bounds, state);
-    return;
-  }
   draw_top_bar(ctx, bounds, state);
-  draw_map(ctx, ui_map_area(bounds));
+  draw_map(ctx, ui_map_area(bounds), map_scale_256, ui_map_anchor(bounds));
   draw_bottom_bar(ctx, bounds, state);
 }

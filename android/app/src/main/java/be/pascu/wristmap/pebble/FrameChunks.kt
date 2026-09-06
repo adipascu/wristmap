@@ -3,9 +3,10 @@ package be.pascu.wristmap.pebble
 import io.rebble.pebblekit2.common.model.PebbleDictionary
 import io.rebble.pebblekit2.common.model.PebbleDictionaryItem
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 object FrameChunks {
-    fun split(frameId: Int, width: Int, height: Int, data: ByteArray, chunkSize: Int): List<PebbleDictionary> {
+    fun split(frameId: Int, width: Int, height: Int, zoom: Double, data: ByteArray, chunkSize: Int): List<PebbleDictionary> {
         val chunks = ArrayList<PebbleDictionary>()
         var offset = 0
         while (offset < data.size) {
@@ -18,6 +19,7 @@ object FrameChunks {
                 dictionary[Protocol.MAP_WIDTH] = PebbleDictionaryItem.UInt16(width)
                 dictionary[Protocol.MAP_HEIGHT] = PebbleDictionaryItem.UInt16(height)
                 dictionary[Protocol.MAP_TOTAL] = PebbleDictionaryItem.UInt32(data.size.toLong())
+                dictionary[Protocol.MAP_ZOOM] = PebbleDictionaryItem.UInt16((zoom * Protocol.ZOOM_SCALE).roundToInt())
             }
             chunks.add(dictionary)
             offset = end

@@ -72,6 +72,7 @@ object Navigator {
 
     private const val TAG = "Navigator"
     private const val MIN_FRAME_INTERVAL_MS = 1500L
+    private const val ZOOM_FRAME_INTERVAL_MS = 250L
     private const val WATCH_LAUNCH_DELAY_MS = 1200L
     private const val STOP_LINGER_MS = 2000L
     private const val BEARING_MIN_SPEED_MPS = 0.8f
@@ -103,8 +104,8 @@ object Navigator {
     @Volatile private var location: Location? = null
     @Volatile private var bearing = 0.0
     @Volatile private var zoomOverride: Double? = null
-    @Volatile private var currentZoom = 17.0
     @Volatile private var demoMode = false
+    @Volatile private var zoomFramePending = false
     @Volatile private var serviceState = ServiceState.STOPPED
     @Volatile private var stopPending = false
     @Volatile private var fallbackListener: LocationListener? = null
@@ -232,14 +233,9 @@ object Navigator {
 
     fun onWatchAppClosed() = update { copy(navSend = "watchapp closed") }
 
-    fun onZoom(direction: Int) {
-        val base = zoomOverride ?: currentZoom
-        val delta = when (direction) {
-            Protocol.ZOOM_IN -> 1.0
-            Protocol.ZOOM_OUT -> -1.0
-            else -> return
-        }
-        zoomOverride = (base + delta).coerceIn(AutoZoom.MIN, AutoZoom.MAX)
+    fun onZoomLevel(level: Int) {
+        zoomOverride = (level.toDouble() / Protocol.ZOOM_SCALE).coerceIn(AutoZoom.MIN, AutoZoom.MAX)
+        zoomFramePending = true
         requestFrame()
     }
 
@@ -383,7 +379,9 @@ object Navigator {
 
     private suspend fun frameLoop() {
         for (request in frameRequests) {
-            val wait = lastFrameEnd + MIN_FRAME_INTERVAL_MS - System.currentTimeMillis()
+            val interval = if (zoomFramePending) ZOOM_FRAME_INTERVAL_MS else MIN_FRAME_INTERVAL_MS
+            zoomFramePending = false
+            val wait = lastFrameEnd + interval - System.currentTimeMillis()
             if (wait > 0) delay(wait)
             try {
                 renderAndSend()
@@ -406,7 +404,6 @@ object Navigator {
         val width = link.mapWidth
         val height = link.mapHeight
         val zoom = zoomOverride ?: AutoZoom.choose(lat, height, state.distanceMeters, fix?.speed)
-        currentZoom = zoom
 
         val tileList = if (hasFix) withContext(Dispatchers.IO) { loadTiles(lat, lon, zoom, width, height) } else emptyList()
         val preview = if (hasFix) buildPreview(lat, lon, heading, state, tileList) else null
@@ -414,12 +411,12 @@ object Navigator {
         val data = FrameEncoder.encode(bitmap)
         withContext(Dispatchers.IO) { saveDebugFrame(bitmap, width, height, data) }
         val started = System.currentTimeMillis()
-        val result = link.sendFrame(width, height, data)
+        val result = link.sendFrame(width, height, zoom, data)
         val elapsed = System.currentTimeMillis() - started
         update {
             copy(
                 frameText = String.format(
-                    Locale.US, "frame %dx%d, %d B, zoom %.0f, %d tiles, turn %s, sent in %d ms: %s",
+                    Locale.US, "frame %dx%d, %d B, zoom %.2f, %d tiles, turn %s, sent in %d ms: %s",
                     width, height, data.size, zoom, tileList.size,
                     if (preview?.hasTurn == true) (if (preview.onRoad) "on road" else "straight ahead") else "unknown",
                     elapsed, result,

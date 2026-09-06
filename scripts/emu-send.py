@@ -34,6 +34,7 @@ KEY_MAP_FRAME = 22
 KEY_MAP_TOTAL = 23
 KEY_MAP_OFFSET = 24
 KEY_MAP_DATA = 25
+KEY_MAP_ZOOM = 26
 
 hello = {}
 
@@ -99,7 +100,7 @@ def load_frame(path):
         return width, height, f.read()
 
 
-def send_frame(link, width, height, data, chunk_size, frame_id=1):
+def send_frame(link, width, height, data, chunk_size, zoom, frame_id=1):
     total = len(data)
     offset = 0
     started = time.time()
@@ -114,6 +115,7 @@ def send_frame(link, width, height, data, chunk_size, frame_id=1):
             dictionary[KEY_MAP_WIDTH] = Uint16(width)
             dictionary[KEY_MAP_HEIGHT] = Uint16(height)
             dictionary[KEY_MAP_TOTAL] = Uint32(total)
+            dictionary[KEY_MAP_ZOOM] = Uint16(int(round(zoom * 100)))
         result, elapsed = link.send(dictionary)
         print("chunk @%d len %d -> %s in %.2fs" % (offset, len(chunk), result, elapsed))
         offset += len(chunk)
@@ -139,6 +141,7 @@ def main():
     parser.add_argument("--pattern", action="store_true", help="send a synthetic test frame")
     parser.add_argument("--frame", help="send a .wmf frame file (u16 w, u16 h, packed 2bpp rows)")
     parser.add_argument("--chunk", type=int, default=0, help="chunk size, default from watch hello")
+    parser.add_argument("--zoom", type=float, default=16.0, help="zoom level stamped on the frame")
     parser.add_argument("--launch", action="store_true", help="restart the watchapp first and wait for its hello")
     args = parser.parse_args()
 
@@ -173,10 +176,10 @@ def main():
     print("hello:", hello, "chunk:", chunk)
 
     if args.pattern:
-        send_frame(link, width, height, pack_test_pattern(width, height), chunk)
+        send_frame(link, width, height, pack_test_pattern(width, height), chunk, args.zoom)
     if args.frame:
         fw, fh, data = load_frame(args.frame)
-        send_frame(link, fw, fh, data, chunk)
+        send_frame(link, fw, fh, data, chunk, args.zoom)
 
 
 if __name__ == "__main__":
