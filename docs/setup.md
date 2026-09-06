@@ -19,15 +19,16 @@ on the phone beyond the permissions below.
    asks to install it on the connected watch.
 2. **Companion**: install `wristmap.apk` from the same release. Android warns about an app
    from outside the Play Store, allow it.
-3. Open Wristmap once. The setup section lists three things and shows a button for each
-   that is still missing:
+3. Open Wristmap once. The setup section lists the three permissions below, with a button for
+   each that is still missing, and whether a Pebble app is installed:
    - **Notification access**. Android sends every notification to Wristmap. Wristmap only
      acts on the one Google Maps posts while navigating and ignores the rest.
    - **Location**. Needed to draw the map around you and to estimate where the turn is.
    - **Location all the time**. Directions start while Google Maps is in front, not Wristmap,
      so Wristmap's location service starts from the background. Android only gives GPS to
      such a service when background location is allowed. Without it the map shows
-     "Waiting for GPS" for the whole trip.
+     "Waiting for GPS" whenever Wristmap itself is not in front, which is the whole trip in
+     practice.
 4. Start walking or cycling directions in Google Maps. The watchapp opens by itself.
 
 ## Settings

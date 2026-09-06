@@ -44,8 +44,8 @@ loop is poked again when they land, so a frame never waits on the network.
 **`GoogleMapsNotification` and `NavParser`** turn the notification into a `NavState`
 (distance, instruction, street, arrival time, manoeuvre). See [google-maps.md](google-maps.md).
 
-**`TileStore` and `Mvt`** download OpenFreeMap vector tiles at zoom 14 (each about 2.4 km
-across at Brussels' latitude), decode the Mapbox Vector Tile protobuf with a small hand-written
+**`TileStore` and `Mvt`** download OpenFreeMap vector tiles at zoom 14 (each about 1.5 km
+across at Brussels' latitude, 2.4 km at the equator), decode the Mapbox Vector Tile protobuf with a small hand-written
 reader, and keep the roads, named roads, water and waterways of each tile as float arrays in
 tile-local coordinates. Tiles are cached on disk for two weeks and in memory within an 8 MB
 budget. The TileJSON at `https://tiles.openfreemap.org/planet` names the current tileset.
@@ -95,6 +95,6 @@ so cycling gets a wider view. A swipe on the watch overrides it for the rest of 
 
 A z14 tile has thousands of road segments. Decoding protobuf, clipping, rotating and rasterising
 that on the watch every second would be slow and would need memory the app does not have,
-while the phone does it in a few milliseconds. One 7.6 KB frame per second is well within what
+while the phone does it in a few milliseconds. One 7.6 KB frame every 1.5 s, or every 250 ms while zooming, is well within what
 the Bluetooth link carries, and it keeps the watchapp small and dumb: it never has to know what
 a road is.

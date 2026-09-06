@@ -18,7 +18,7 @@ companions use to see notifications. Android requires the user to grant it expli
    used.
 
 Nothing depends on the exact layout, only on text content, which is why the reader has
-survived Google's layout changes. The approach follows GMapsParser and Maps Nav.
+survived Google's layout changes. The approach follows GMapsParser and pebble-map-android.
 
 ## Interpreting the text
 
@@ -49,7 +49,7 @@ Exit navigation
 - The first plausible Maps navigation notification (id 1, or one with a distance, or one with
   an icon) starts a session: the location service starts, the watchapp is launched and the
   state is pushed.
-- Every update is pushed to the watch if the instruction changed, and a new frame is requested.
+- Every update is pushed to the watch and a new frame is requested.
   The watchapp is only relaunched when a new instruction arrives, so pressing back on the
   watch to look at something else is respected until the next turn.
 - Removing the notification (ending navigation in Maps) stops the session: the watch is told to
