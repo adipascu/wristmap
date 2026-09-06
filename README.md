@@ -51,7 +51,10 @@ Two parts: the watchapp on the watch and the companion on the phone.
 1. **Watchapp**: open `wristmap.pbw` from the latest release in the Pebble app, or build it
    (see below) and sideload it.
 2. **Companion**: install `wristmap.apk` from the latest release. Open it once and grant
-   notification access and location. The app lists what is still missing.
+   notification access, location, and location "all the time". The last one matters: directions
+   start while Google Maps is in front, so Wristmap's location service starts from the
+   background, and Android only feeds GPS to such a service when background location is allowed.
+   The app lists what is still missing.
 3. Start walking or cycling directions in Google Maps. The watchapp pops up on its own.
 
 On the watch: up and down zoom the map, select toggles between the map and a big arrow view,
@@ -71,7 +74,8 @@ pebble build
 pebble install --emulator emery
 ```
 
-Companion, with an Android SDK that has platform 37:
+Companion, with JDK 21 and an Android SDK that has platform 37 (PebbleKit Android 2 ships
+Java 21 class files, so the unit tests need a 21 runtime):
 
 ```
 cd android
@@ -84,9 +88,14 @@ navigation state, a synthetic test pattern, or a frame the companion wrote to it
 directory (`last-frame.wmf`, pull it with `adb shell run-as be.pascu.wristmap cat cache/last-frame.wmf`).
 
 ```
-~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --demo --pattern
+~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --launch --demo --pattern
 ~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --frame last-frame.wmf
 ```
+
+`--launch` restarts the watchapp first so the script sees its hello message, sizes the chunks
+the way the companion does (inbox size minus 96 bytes, at most 8000) and draws the test
+pattern at the size the watch announced. Without it `--pattern` assumes the emery layout
+(200x152), which the watch rejects on a smaller screen such as basalt.
 
 ## Protocol
 
@@ -106,6 +115,11 @@ Phone to watch:
 | 22 | `MAP_FRAME` | uint8 | frame id, chunks of another frame are dropped |
 | 23 | `MAP_TOTAL` | uint32 | total packed bytes |
 | 24, 25 | `MAP_OFFSET`, `MAP_DATA` | uint32, bytes | one chunk |
+
+Chunks of a frame arrive in order: the watch expects each `MAP_OFFSET` to equal the number
+of bytes it already has, ignores a chunk with a lower offset as a duplicate, and drops the
+whole frame on any other gap until the next header. A header whose width or height exceeds
+the map area announced in `HELLO` is rejected.
 
 Watch to phone:
 
@@ -161,3 +175,28 @@ byte aligned, exactly the layout of `GBitmapFormat2BitPalette`. Palette: 0 white
 ## License
 
 MIT, see `LICENSE`.
+
+---
+
+## Prompts
+
+This project was written end to end by Claude in one session. The prompts, verbatim and in
+order, typos included. Nothing in them needed masking.
+
+1. I need an app for my pebble time 2, the one that recently came out. I need an app that integrates into google maps and shows me the map to help me navigate. It only needs to work when I am already navigating in bicycle mode or walking via google maps on my android.
+
+   Either reuse an app, fork an app or build one from scratch.
+
+   Do the best you can and do /mr-polish on the codebase when done.
+
+   /ship-public-app it on my pascu.be website as well, do the best you can, I am leaving you unattended. If you need me for anything, let me know after you have the app running, we can iterate on it together, yet do the ebst you can unatended until lthen.
+2. You can use any other claude session on this PC for inspiration
+3. Make sure we can see a little preview of where we are and the next turn, a little map or similar visualisation, goal is to see when the next turn is somehow.
+4. also uninstal and revert any changes you did to this computer when you are done
+5. resume
+6. real android phone and watch connected (adb and bt), you can use them to debug,. test, develop, etc.
+
+   When done make sure the new app is installed on my watch and is functional
+7. test on the real devices to make sure it works
+
+7 prompts. 0 multiple-choice answers. 0 lines of code written or edited by a human.
