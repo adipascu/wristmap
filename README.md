@@ -86,6 +86,11 @@ instruction, the watch only plays it.
 The companion needs the Core Devices Pebble app (`coredevices.coreapp`). It is the only Android
 app that implements PebbleKit Android 2, which the companion uses to talk to the watch.
 
+## Documentation
+
+The [docs](docs/README.md) folder covers what the phone needs, [how the pieces fit](docs/how-it-works.md),
+[how the Google Maps notification is read](docs/google-maps.md) and [troubleshooting](docs/troubleshooting.md).
+
 ## Build
 
 Watchapp, with the Core Devices SDK (`uv tool install pebble-tool --python 3.13`, then
@@ -205,8 +210,8 @@ MIT, see `LICENSE`.
 
 ## Prompts
 
-This project was written end to end by Claude in one session. The prompts, verbatim and in
-order, typos included. Nothing in them needed masking.
+This project was written end to end by Claude across two sessions. The prompts, verbatim and
+in order, typos included.
 
 1. I need an app for my pebble time 2, the one that recently came out. I need an app that integrates into google maps and shows me the map to help me navigate. It only needs to work when I am already navigating in bicycle mode or walking via google maps on my android.
 
@@ -223,5 +228,26 @@ order, typos included. Nothing in them needed masking.
 
    When done make sure the new app is installed on my watch and is functional
 7. test on the real devices to make sure it works
+8. /mr-new /mr-polish and merge: add an icon to the app
 
-7 prompts. 0 multiple-choice answers. 0 lines of code written or edited by a human.
+   /mr-new /mr-polish and merge: make swiping up and down change zoom levels, make this smooth on drag instant responce, zero start lag, zero start distance zero start delay time, instant touch and swipe and instant zoom reaction. When the screen is touched it lights up and stays up for 5s when in this app. Disable the buttons and remove that featuer entirely that shows up when you press the middle butotn
+9. /mr-new /mr-polish and merge: add a feature that can be on/off, configurable via the app, this feature is turn by turn navigation via the taptic engine thing it has, use the most popular standard short vibration code type of language and encode in as short as possible turn by turn navigation, use best communication prtactices for as short as possible yet standardized undarstable turn by turn navigation
+10. /mr-new /mr-polish and merge: add documentation in the repo explaining how the pebble app works, hot its impkemented, how it communicates to google maps, if this needs anything extra installed on the phone to work etc
+11. Btw, I want to discuoonect my phone from usb, transition it to adb over wifi so I can safle remove it from usb and you keep using it over WiFi
+12. add a global claude commadn to kee the phone awake, see recent claude sessions for inspiration on how to do it in a way that nothing is ever instaslled and no configs are changerd on thje phone
+
+    use it, keep the phone awake
+
+    after you are done, do market research of this app vs any other pebble app competitors, show me this via a claude artifact
+
+    If we have a decent chance of being the market leader for this category of pebble app, the take in the best practices from the bachata-bot repo, all that CI/CD unit test, lint etc type of project structure and add in tinto this pebble ap repo, add do /mr-new and /mr-polish on it and megge it in.
+
+    Then do anoter /mr-new and /mr-polish to implent a CI/CD pipeline to auto publish the app on the pebble store from the repo, you can use login with google ****@gmail as a primary way to make or login to accounts, otherwise use bitwarden via the bitwarden skill.
+
+    Also make a global claude.md command to make add this stuff that we are  pulling in from bachata bot now, search inspiration on how we pulled such best practices into other repos from bachata-bot, and make this command in a way thats reusable and we can run it on any repo to promote its code quaity to our standards.
+13. Continue from where you left off.
+14. resume
+15. /mr-new /mr-polish and merge, make the clock larger and make it show near the top, it should be easily readable and mixed in nicely with the nav data
+
+15 prompts. 0 multiple-choice answers. 0 lines of code written or edited by a human. One
+address in prompt 12 is masked.
