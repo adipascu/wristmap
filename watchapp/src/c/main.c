@@ -18,6 +18,7 @@ static int16_t s_touch_start_y;
 static int32_t s_touch_start_zoom;
 static int32_t s_zoom_target;
 static bool s_zoom_unsent;
+static uint8_t s_frames_since_liftoff;
 
 static int32_t pow2_256(int32_t exponent_100) {
   int32_t whole = exponent_100 >= 0 ? exponent_100 / ZOOM_SCALE : -((-exponent_100 + ZOOM_SCALE - 1) / ZOOM_SCALE);
@@ -59,6 +60,10 @@ static void send_hello(void) {
 static void zoom_timer_fired(void *context);
 
 static void send_zoom_level(void) {
+  if (!s_zoom_target) {
+    s_zoom_unsent = false;
+    return;
+  }
   DictionaryIterator *out;
   if (app_message_outbox_begin(&out) != APP_MSG_OK) {
     s_zoom_unsent = true;
@@ -86,6 +91,16 @@ static void zoom_changed(void) {
   }
 }
 
+static void forget_zoom(void) {
+  s_zoom_target = 0;
+  s_zoom_unsent = false;
+  s_frames_since_liftoff = 0;
+  if (s_zoom_timer) {
+    app_timer_cancel(s_zoom_timer);
+    s_zoom_timer = NULL;
+  }
+}
+
 static void light_timer_fired(void *context) {
   s_light_timer = NULL;
   light_enable(false);
@@ -105,6 +120,7 @@ static void touch_handler(const TouchEvent *event, void *context) {
     case TouchEvent_Touchdown:
       hold_light();
       s_touching = true;
+      s_frames_since_liftoff = 0;
       s_touch_start_y = event->y;
       s_touch_start_zoom = current_zoom();
       break;
@@ -140,11 +156,14 @@ static void inbox_received(DictionaryIterator *iter, void *context) {
   NavChange change = nav_state_apply(iter);
   if (was_active && !nav_state_get()->active) {
     map_frame_clear();
-    s_zoom_target = 0;
+    forget_zoom();
   }
   bool frame_done = map_frame_apply(iter);
-  if (frame_done && !s_touching && !s_zoom_unsent) {
-    s_zoom_target = 0;
+  if (frame_done && s_zoom_target && !s_touching && !s_zoom_unsent) {
+    if (map_frame_zoom() == s_zoom_target || ++s_frames_since_liftoff >= 2) {
+      s_zoom_target = 0;
+      s_frames_since_liftoff = 0;
+    }
   }
   if (change & NAV_CHANGE_INSTRUCTION) {
     vibes_short_pulse();
@@ -160,6 +179,9 @@ static void inbox_dropped(AppMessageResult reason, void *context) {
 
 static void outbox_failed(DictionaryIterator *iter, AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_WARNING, "outbox failed: %d", reason);
+  if (dict_find(iter, KEY_ZOOM_LEVEL) && s_zoom_target) {
+    zoom_changed();
+  }
 }
 
 static void window_load(Window *window) {

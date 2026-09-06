@@ -80,6 +80,10 @@ static bool ensure_bitmap(uint16_t width, uint16_t height) {
     }
     gbitmap_destroy(s_bitmap);
     s_bitmap = NULL;
+    if (s_scaled) {
+      gbitmap_destroy(s_scaled);
+      s_scaled = NULL;
+    }
   }
   s_bitmap = gbitmap_create_blank_with_palette(GSize(width, height), GBitmapFormat2BitPalette,
                                                s_palette, false);
@@ -108,7 +112,7 @@ static bool begin_frame(uint8_t frame, uint16_t width, uint16_t height, uint32_t
   s_total = total;
   s_received = 0;
   s_frame_open = true;
-  s_pending_zoom = zoom;
+  s_pending_zoom = (zoom >= ZOOM_MIN && zoom <= ZOOM_MAX) ? zoom : 0;
   return true;
 }
 
@@ -223,13 +227,13 @@ void map_frame_draw(GContext *ctx, GRect area, int32_t scale_256, GPoint anchor)
   if (!s_bitmap) {
     return;
   }
-  GBitmap *bitmap = s_bitmap;
-  if (scale_256 != 256 && ensure_scaled()) {
-    render_scaled(scale_256, GPoint(anchor.x - area.origin.x, anchor.y - area.origin.y));
-    bitmap = s_scaled;
-  }
   GRect dest = GRect(area.origin.x + (area.size.w - s_width) / 2, area.origin.y + (area.size.h - s_height) / 2,
                      s_width, s_height);
+  GBitmap *bitmap = s_bitmap;
+  if (scale_256 != 256 && ensure_scaled()) {
+    render_scaled(scale_256, GPoint(anchor.x - dest.origin.x, anchor.y - dest.origin.y));
+    bitmap = s_scaled;
+  }
   graphics_context_set_compositing_mode(ctx, GCompOpAssign);
   graphics_draw_bitmap_in_rect(ctx, bitmap, dest);
 }

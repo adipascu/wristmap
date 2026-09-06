@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import java.util.Locale
 
@@ -234,6 +235,7 @@ object Navigator {
     fun onWatchAppClosed() = update { copy(navSend = "watchapp closed") }
 
     fun onZoomLevel(level: Int) {
+        if (!navState.active || level < AutoZoom.MIN * Protocol.ZOOM_SCALE) return
         zoomOverride = (level.toDouble() / Protocol.ZOOM_SCALE).coerceIn(AutoZoom.MIN, AutoZoom.MAX)
         zoomFramePending = true
         requestFrame()
@@ -303,6 +305,7 @@ object Navigator {
             Log.i(TAG, "navigation started from notification ${sbn.key}")
             sessionId++
             stopPending = false
+            zoomOverride = null
         }
         if (serviceState == ServiceState.STOPPED && fallbackListener == null) startLocationService()
         pushNav(relaunch = starting || !previous.sameInstruction(parsed))
@@ -379,10 +382,12 @@ object Navigator {
 
     private suspend fun frameLoop() {
         for (request in frameRequests) {
-            val interval = if (zoomFramePending) ZOOM_FRAME_INTERVAL_MS else MIN_FRAME_INTERVAL_MS
+            while (true) {
+                val interval = if (zoomFramePending) ZOOM_FRAME_INTERVAL_MS else MIN_FRAME_INTERVAL_MS
+                val wait = lastFrameEnd + interval - System.currentTimeMillis()
+                if (wait <= 0 || withTimeoutOrNull(wait) { frameRequests.receive() } == null) break
+            }
             zoomFramePending = false
-            val wait = lastFrameEnd + interval - System.currentTimeMillis()
-            if (wait > 0) delay(wait)
             try {
                 renderAndSend()
             } catch (e: Exception) {
