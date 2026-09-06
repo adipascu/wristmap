@@ -16,15 +16,17 @@
 #define KEY_MAP_TOTAL 23
 #define KEY_MAP_OFFSET 24
 #define KEY_MAP_DATA 25
+#define KEY_MAP_ZOOM 26
 
 #define KEY_HELLO 40
 #define KEY_INBOX_MAX 41
 #define KEY_MAP_VIEW_WIDTH 42
 #define KEY_MAP_VIEW_HEIGHT 43
-#define KEY_ZOOM 44
+#define KEY_ZOOM_LEVEL 45
 
-#define ZOOM_IN 1
-#define ZOOM_OUT 2
+#define ZOOM_SCALE 100
+#define ZOOM_MIN (14 * ZOOM_SCALE)
+#define ZOOM_MAX (18 * ZOOM_SCALE)
 
 #define ARROW_SIZE 40
 #define ARROW_ROW_BYTES 5

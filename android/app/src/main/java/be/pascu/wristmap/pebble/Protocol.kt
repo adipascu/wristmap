@@ -21,13 +21,13 @@ object Protocol {
     val MAP_TOTAL = 23u
     val MAP_OFFSET = 24u
     val MAP_DATA = 25u
+    val MAP_ZOOM = 26u
 
     val HELLO = 40u
     val INBOX_MAX = 41u
     val MAP_VIEW_WIDTH = 42u
     val MAP_VIEW_HEIGHT = 43u
-    val ZOOM = 44u
+    val ZOOM_LEVEL = 45u
 
-    const val ZOOM_IN = 1
-    const val ZOOM_OUT = 2
+    const val ZOOM_SCALE = 100
 }
