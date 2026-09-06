@@ -61,7 +61,26 @@ On the watch: swipe up to zoom in and down to zoom out. The map scales under you
 immediately from the frame it already has, and the phone follows with a properly rendered
 frame within a few hundred milliseconds. Any touch turns the backlight on for five seconds.
 The buttons do nothing except back, which leaves the app. A short vibration announces every
-new instruction.
+new instruction, or, with "Vibrate turns in Morse code" switched on in the phone app, the
+manoeuvre itself is tapped out in Morse so you can follow directions without looking:
+
+| Manoeuvre | Letters | Pattern |
+|-----------|---------|---------|
+| turn left | L | . - . . |
+| turn right | R | . - . |
+| straight on | S | . . . |
+| U-turn | U | . . - |
+| roundabout | O | - - - |
+| destination | D | - . . |
+| merge | M | - - |
+| exit or ramp | X | - . . - |
+| slight turn | E then the letter | . then L or R |
+| sharp turn | T then the letter | - then L or R |
+
+A dot is 100 ms, a dash 300 ms, symbols are 100 ms apart and letters 300 ms apart, so no cue
+is longer than 1.5 s. The cue plays when an instruction first appears and once more when the
+turn is 40 m away. The phone builds the pattern (`MorseCue`) and sends it with the
+instruction, the watch only plays it.
 
 The companion needs the Core Devices Pebble app (`coredevices.coreapp`). It is the only Android
 app that implements PebbleKit Android 2, which the companion uses to talk to the watch.
@@ -114,6 +133,7 @@ Phone to watch:
 | 2 | `MANEUVER` | uint8 | fallback arrow when no icon was captured |
 | 3 | `ARROW_BITMAP` | bytes | 40x40, 1 bit per pixel, 5 bytes per row, MSB first |
 | 4..9 | `DISTANCE`, `STREET`, `INSTRUCTION`, `ETA`, `DIST_REMAIN`, `TIME_REMAIN` | cstring | display text |
+| 10 | `HAPTIC_PATTERN` | bytes | vibration segments as little-endian uint16 milliseconds, on and off alternating, starting with on, at most 32 |
 | 20, 21 | `MAP_WIDTH`, `MAP_HEIGHT` | uint16 | frame size, sent with the first chunk |
 | 22 | `MAP_FRAME` | uint8 | frame id, chunks of another frame are dropped |
 | 23 | `MAP_TOTAL` | uint32 | total packed bytes |

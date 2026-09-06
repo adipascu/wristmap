@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "haptics.h"
 #include "map_frame.h"
 #include "nav_state.h"
 #include "protocol.h"
@@ -170,7 +171,8 @@ static void inbox_received(DictionaryIterator *iter, void *context) {
       s_frames_since_liftoff = 0;
     }
   }
-  if (change & NAV_CHANGE_INSTRUCTION) {
+  bool cued = haptics_apply(iter);
+  if (!cued && (change & NAV_CHANGE_INSTRUCTION)) {
     vibes_short_pulse();
   }
   if (change != NAV_CHANGE_NONE || frame_done) {

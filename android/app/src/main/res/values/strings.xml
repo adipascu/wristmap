@@ -14,6 +14,8 @@
     <string name="grant_background_location">Allow location all the time</string>
     <string name="pebble_app_found">Pebble app: %1$s</string>
     <string name="pebble_app_missing">Pebble app: not installed</string>
+    <string name="haptic_cues">Vibrate turns in Morse code</string>
+    <string name="haptic_cues_hint">L left, R right, S straight, U U-turn, O roundabout, D destination, M merge, X exit. A short E before the letter means slight, a long T means sharp. Played on each new instruction and again 40 m before the turn.</string>
     <string name="status_title">Status</string>
     <string name="listener_connected">Listening for Google Maps directions.</string>
     <string name="listener_waiting">Notification listener not connected yet.</string>

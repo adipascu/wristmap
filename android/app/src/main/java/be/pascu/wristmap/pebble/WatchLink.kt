@@ -38,7 +38,8 @@ class WatchLink(context: Context) {
 
     suspend fun stopApp(): SendResult = request { sender.stopAppOnTheWatch(Protocol.APP_UUID) }
 
-    suspend fun sendNav(state: NavState, arrow: ByteArray?): SendResult = send(navDictionary(state, arrow))
+    suspend fun sendNav(state: NavState, arrow: ByteArray?, cue: ByteArray? = null): SendResult =
+        send(navDictionary(state, arrow, cue))
 
     suspend fun sendStopped(): SendResult = send(mapOf(Protocol.NAV_ACTIVE to PebbleDictionaryItem.UInt8(0)))
 
@@ -53,11 +54,12 @@ class WatchLink(context: Context) {
 
     fun close() = sender.close()
 
-    private fun navDictionary(state: NavState, arrow: ByteArray?): PebbleDictionary {
+    private fun navDictionary(state: NavState, arrow: ByteArray?, cue: ByteArray?): PebbleDictionary {
         val dictionary = HashMap<UInt, PebbleDictionaryItem>()
         dictionary[Protocol.NAV_ACTIVE] = PebbleDictionaryItem.UInt8(if (state.active) 1 else 0)
         dictionary[Protocol.MANEUVER] = PebbleDictionaryItem.UInt8(state.maneuver.id)
         if (arrow != null) dictionary[Protocol.ARROW_BITMAP] = PebbleDictionaryItem.Bytes(arrow)
+        if (cue != null) dictionary[Protocol.HAPTIC_PATTERN] = PebbleDictionaryItem.Bytes(cue)
         dictionary[Protocol.DISTANCE] = PebbleDictionaryItem.Text(state.distance)
         dictionary[Protocol.STREET] = PebbleDictionaryItem.Text(state.street)
         dictionary[Protocol.INSTRUCTION] = PebbleDictionaryItem.Text(state.instruction)
