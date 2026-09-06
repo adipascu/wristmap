@@ -24,6 +24,7 @@ import be.pascu.wristmap.map.WebMercator
 import be.pascu.wristmap.nav.GoogleMapsNotification
 import be.pascu.wristmap.nav.Maneuver
 import be.pascu.wristmap.nav.ManeuverIcon
+import be.pascu.wristmap.nav.MorseCue
 import be.pascu.wristmap.nav.NavParser
 import be.pascu.wristmap.nav.NavState
 import be.pascu.wristmap.pebble.Protocol
@@ -81,12 +82,16 @@ object Navigator {
     private const val DEMO_LAT = 50.8467
     private const val DEMO_LON = 4.3525
     private const val MAX_TILES = 9
+    private const val IMMINENT_TURN_METERS = 40.0
+    private const val DEMO_STREET = "Rue des Bouchers"
     private const val DEMO_STEP_MS = 5000L
     private val DEMO_DISTANCES = intArrayOf(300, 150, 80, 40)
 
     private lateinit var app: Application
     private lateinit var link: WatchLink
     private lateinit var tiles: TileStore
+    lateinit var preferences: Preferences
+        private set
     private val renderer = MapRenderer()
     private val handler = CoroutineExceptionHandler { _, e -> Log.e(TAG, "unhandled", e) }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + handler)
@@ -107,6 +112,7 @@ object Navigator {
     @Volatile private var zoomOverride: Double? = null
     @Volatile private var demoMode = false
     @Volatile private var zoomFramePending = false
+    private var imminentCueSent = false
     @Volatile private var serviceState = ServiceState.STOPPED
     @Volatile private var stopPending = false
     @Volatile private var fallbackListener: LocationListener? = null
@@ -117,6 +123,7 @@ object Navigator {
 
     fun init(application: Application) {
         app = application
+        preferences = Preferences(app)
         link = WatchLink(app)
         tiles = TileStore(File(app.cacheDir, "tiles"), USER_AGENT, scope) { requestFrame() }
         scope.launch { frameLoop() }
@@ -244,11 +251,11 @@ object Navigator {
     fun sendDemo() {
         scope.launch {
             val demoSession = session.withLock { startDemo() }
-            for (meters in DEMO_DISTANCES) {
+            for ((step, meters) in DEMO_DISTANCES.withIndex()) {
                 val stillRunning = session.withLock {
                     if (sessionId != demoSession) return@withLock false
                     setDemoState(meters)
-                    pushNav(relaunch = false)
+                    pushNav(relaunch = false, cue = hapticCue(navState, newInstruction = step == 0))
                     requestFrame()
                     true
                 }
@@ -279,8 +286,8 @@ object Navigator {
             maneuver = Maneuver.TURN_LEFT,
             distance = "$meters m",
             distanceMeters = meters.toDouble(),
-            street = "Rue des Bouchers",
-            instruction = "Turn left onto Rue des Bouchers",
+            street = DEMO_STREET,
+            instruction = "Turn left onto $DEMO_STREET",
             eta = "10:45",
             distRemain = "2.1 km",
             timeRemain = "14 min",
@@ -308,8 +315,20 @@ object Navigator {
             zoomOverride = null
         }
         if (serviceState == ServiceState.STOPPED && fallbackListener == null) startLocationService()
-        pushNav(relaunch = starting || !previous.sameInstruction(parsed))
+        val newInstruction = starting || !previous.sameInstruction(parsed)
+        pushNav(relaunch = newInstruction, cue = hapticCue(parsed, newInstruction))
         requestFrame()
+    }
+
+    private fun hapticCue(state: NavState, newInstruction: Boolean): ByteArray? {
+        val distance = state.distanceMeters
+        val withinReach = distance != null && distance <= IMMINENT_TURN_METERS
+        if (newInstruction) imminentCueSent = withinReach
+        if (!preferences.hapticCues) return null
+        val imminent = !newInstruction && !imminentCueSent && withinReach
+        if (!newInstruction && !imminent) return null
+        if (imminent) imminentCueSent = true
+        return MorseCue.pattern(state.maneuver)
     }
 
     private suspend fun stopSession(reason: String) {
@@ -366,12 +385,12 @@ object Navigator {
     private fun hasPermission(permission: String): Boolean =
         ContextCompat.checkSelfPermission(app, permission) == PackageManager.PERMISSION_GRANTED
 
-    private suspend fun pushNav(relaunch: Boolean) = navMutex.withLock {
-        var result = link.sendNav(navState, arrow)
+    private suspend fun pushNav(relaunch: Boolean, cue: ByteArray? = null) = navMutex.withLock {
+        var result = link.sendNav(navState, arrow, cue)
         if (result == SendResult.AppNotOpen && relaunch) {
             link.launchApp()
             delay(WATCH_LAUNCH_DELAY_MS)
-            result = link.sendNav(navState, arrow)
+            result = link.sendNav(navState, arrow, cue)
         }
         update { copy(navSend = "nav: $result") }
     }

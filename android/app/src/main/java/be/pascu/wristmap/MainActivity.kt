@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -80,6 +81,10 @@ class MainActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 permissionRequest.launch(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION))
             }
+        }
+        findViewById<Switch>(R.id.haptic_cues).apply {
+            isChecked = Navigator.preferences.hapticCues
+            setOnCheckedChangeListener { _, checked -> Navigator.preferences.hapticCues = checked }
         }
         findViewById<Button>(R.id.send_demo).setOnClickListener { Navigator.sendDemo() }
         findViewById<Button>(R.id.stop_demo).setOnClickListener { Navigator.stopDemo() }

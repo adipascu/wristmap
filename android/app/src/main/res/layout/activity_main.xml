@@ -74,6 +74,20 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
 
+        <Switch
+            android:id="@+id/haptic_cues"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp"
+            android:text="@string/haptic_cues" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/haptic_cues_hint"
+            android:textSize="13sp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
