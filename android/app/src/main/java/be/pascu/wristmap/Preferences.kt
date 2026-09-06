@@ -3,7 +3,7 @@ package be.pascu.wristmap
 import android.content.Context
 import android.content.SharedPreferences
 
-class Settings(context: Context) {
+class Preferences(context: Context) {
     private val preferences: SharedPreferences = context.getSharedPreferences("wristmap", Context.MODE_PRIVATE)
 
     var hapticCues: Boolean

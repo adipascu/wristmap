@@ -83,8 +83,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
         findViewById<Switch>(R.id.haptic_cues).apply {
-            isChecked = Navigator.settings.hapticCues
-            setOnCheckedChangeListener { _, checked -> Navigator.settings.hapticCues = checked }
+            isChecked = Navigator.preferences.hapticCues
+            setOnCheckedChangeListener { _, checked -> Navigator.preferences.hapticCues = checked }
         }
         findViewById<Button>(R.id.send_demo).setOnClickListener { Navigator.sendDemo() }
         findViewById<Button>(R.id.stop_demo).setOnClickListener { Navigator.stopDemo() }

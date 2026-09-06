@@ -61,8 +61,9 @@ On the watch: swipe up to zoom in and down to zoom out. The map scales under you
 immediately from the frame it already has, and the phone follows with a properly rendered
 frame within a few hundred milliseconds. Any touch turns the backlight on for five seconds.
 The buttons do nothing except back, which leaves the app. A short vibration announces every
-new instruction, or, with "Vibrate turns in Morse code" switched on in the phone app, the
-manoeuvre itself is tapped out in Morse so you can follow directions without looking:
+new instruction, or, with "Vibrate turns in Morse code" switched on in the phone app (it is on
+by default), the manoeuvre itself is tapped out in Morse so you can follow directions without
+looking:
 
 | Manoeuvre | Letters | Pattern |
 |-----------|---------|---------|

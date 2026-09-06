@@ -90,7 +90,7 @@ object Navigator {
     private lateinit var app: Application
     private lateinit var link: WatchLink
     private lateinit var tiles: TileStore
-    lateinit var settings: Settings
+    lateinit var preferences: Preferences
         private set
     private val renderer = MapRenderer()
     private val handler = CoroutineExceptionHandler { _, e -> Log.e(TAG, "unhandled", e) }
@@ -123,7 +123,7 @@ object Navigator {
 
     fun init(application: Application) {
         app = application
-        settings = Settings(app)
+        preferences = Preferences(app)
         link = WatchLink(app)
         tiles = TileStore(File(app.cacheDir, "tiles"), USER_AGENT, scope) { requestFrame() }
         scope.launch { frameLoop() }
@@ -251,12 +251,11 @@ object Navigator {
     fun sendDemo() {
         scope.launch {
             val demoSession = session.withLock { startDemo() }
-            for (meters in DEMO_DISTANCES) {
+            for ((step, meters) in DEMO_DISTANCES.withIndex()) {
                 val stillRunning = session.withLock {
                     if (sessionId != demoSession) return@withLock false
-                    val newInstruction = navState.street != DEMO_STREET
                     setDemoState(meters)
-                    pushNav(relaunch = false, cue = hapticCue(navState, newInstruction))
+                    pushNav(relaunch = false, cue = hapticCue(navState, newInstruction = step == 0))
                     requestFrame()
                     true
                 }
@@ -322,10 +321,11 @@ object Navigator {
     }
 
     private fun hapticCue(state: NavState, newInstruction: Boolean): ByteArray? {
-        if (newInstruction) imminentCueSent = false
-        if (!settings.hapticCues) return null
         val distance = state.distanceMeters
-        val imminent = !newInstruction && !imminentCueSent && distance != null && distance <= IMMINENT_TURN_METERS
+        val withinReach = distance != null && distance <= IMMINENT_TURN_METERS
+        if (newInstruction) imminentCueSent = withinReach
+        if (!preferences.hapticCues) return null
+        val imminent = !newInstruction && !imminentCueSent && withinReach
         if (!newInstruction && !imminent) return null
         if (imminent) imminentCueSent = true
         return MorseCue.pattern(state.maneuver)
