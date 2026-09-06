@@ -21,8 +21,10 @@ object WebMercator {
 
     fun metersPerUnit(lat: Double): Double = EARTH_CIRCUMFERENCE * cos(Math.toRadians(lat)) / WORLD_UNITS
 
-    fun metersPerPixel(lat: Double, zoom: Double): Double =
-        EARTH_CIRCUMFERENCE * cos(Math.toRadians(lat)) / (256.0 * 2.0.pow(zoom))
+    fun metersPerPixel(
+        lat: Double,
+        zoom: Double,
+    ): Double = EARTH_CIRCUMFERENCE * cos(Math.toRadians(lat)) / (256.0 * 2.0.pow(zoom))
 
     fun pixelsPerUnit(zoom: Double): Double = 2.0.pow(zoom - TILE_ZOOM) * 256.0 / EXTENT
 

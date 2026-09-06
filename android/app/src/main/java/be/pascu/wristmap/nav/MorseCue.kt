@@ -6,34 +6,36 @@ object MorseCue {
     const val GAP_MS = 100
     const val LETTER_GAP_MS = 300
 
-    private val alphabet = mapOf(
-        'E' to ".",
-        'T' to "-",
-        'S' to "...",
-        'L' to ".-..",
-        'R' to ".-.",
-        'U' to "..-",
-        'O' to "---",
-        'D' to "-..",
-        'M' to "--",
-        'X' to "-..-",
-    )
+    private val alphabet =
+        mapOf(
+            'E' to ".",
+            'T' to "-",
+            'S' to "...",
+            'L' to ".-..",
+            'R' to ".-.",
+            'U' to "..-",
+            'O' to "---",
+            'D' to "-..",
+            'M' to "--",
+            'X' to "-..-",
+        )
 
-    fun letters(maneuver: Maneuver): String? = when (maneuver) {
-        Maneuver.STRAIGHT -> "S"
-        Maneuver.TURN_LEFT -> "L"
-        Maneuver.TURN_RIGHT -> "R"
-        Maneuver.SLIGHT_LEFT -> "EL"
-        Maneuver.SLIGHT_RIGHT -> "ER"
-        Maneuver.SHARP_LEFT -> "TL"
-        Maneuver.SHARP_RIGHT -> "TR"
-        Maneuver.UTURN -> "U"
-        Maneuver.MERGE -> "M"
-        Maneuver.ROUNDABOUT -> "O"
-        Maneuver.RAMP -> "X"
-        Maneuver.DESTINATION -> "D"
-        Maneuver.UNKNOWN -> null
-    }
+    fun letters(maneuver: Maneuver): String? =
+        when (maneuver) {
+            Maneuver.STRAIGHT -> "S"
+            Maneuver.TURN_LEFT -> "L"
+            Maneuver.TURN_RIGHT -> "R"
+            Maneuver.SLIGHT_LEFT -> "EL"
+            Maneuver.SLIGHT_RIGHT -> "ER"
+            Maneuver.SHARP_LEFT -> "TL"
+            Maneuver.SHARP_RIGHT -> "TR"
+            Maneuver.UTURN -> "U"
+            Maneuver.MERGE -> "M"
+            Maneuver.ROUNDABOUT -> "O"
+            Maneuver.RAMP -> "X"
+            Maneuver.DESTINATION -> "D"
+            Maneuver.UNKNOWN -> null
+        }
 
     fun durations(maneuver: Maneuver): IntArray? {
         val word = letters(maneuver) ?: return null

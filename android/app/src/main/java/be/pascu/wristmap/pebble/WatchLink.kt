@@ -14,21 +14,51 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeoutOrNull
 
 sealed class SendResult {
-    object Ok : SendResult() { override fun toString() = "ok" }
-    object NoPebbleApp : SendResult() { override fun toString() = "Pebble app not installed" }
-    object NoWatch : SendResult() { override fun toString() = "no watch connected" }
-    object AppNotOpen : SendResult() { override fun toString() = "watchapp not open" }
-    object NoPermission : SendResult() { override fun toString() = "companion not allowed by watchapp" }
-    object Nacked : SendResult() { override fun toString() = "watch rejected message" }
-    object Timeout : SendResult() { override fun toString() = "timeout" }
-    data class Failed(val reason: String) : SendResult() { override fun toString() = reason }
+    object Ok : SendResult() {
+        override fun toString() = "ok"
+    }
+
+    object NoPebbleApp : SendResult() {
+        override fun toString() = "Pebble app not installed"
+    }
+
+    object NoWatch : SendResult() {
+        override fun toString() = "no watch connected"
+    }
+
+    object AppNotOpen : SendResult() {
+        override fun toString() = "watchapp not open"
+    }
+
+    object NoPermission : SendResult() {
+        override fun toString() = "companion not allowed by watchapp"
+    }
+
+    object Nacked : SendResult() {
+        override fun toString() = "watch rejected message"
+    }
+
+    object Timeout : SendResult() {
+        override fun toString() = "timeout"
+    }
+
+    data class Failed(
+        val reason: String,
+    ) : SendResult() {
+        override fun toString() = reason
+    }
 }
 
-class WatchLink(context: Context) {
+class WatchLink(
+    context: Context,
+) {
     private val sender = DefaultPebbleSender(context.applicationContext)
     private val requests = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     @Volatile var inboxMax: Int = DEFAULT_INBOX_MAX
+
     @Volatile var mapWidth: Int = DEFAULT_MAP_WIDTH
+
     @Volatile var mapHeight: Int = DEFAULT_MAP_HEIGHT
     private var frameId = 0
 
@@ -38,12 +68,20 @@ class WatchLink(context: Context) {
 
     suspend fun stopApp(): SendResult = request { sender.stopAppOnTheWatch(Protocol.APP_UUID) }
 
-    suspend fun sendNav(state: NavState, arrow: ByteArray?, cue: ByteArray? = null): SendResult =
-        send(navDictionary(state, arrow, cue))
+    suspend fun sendNav(
+        state: NavState,
+        arrow: ByteArray?,
+        cue: ByteArray? = null,
+    ): SendResult = send(navDictionary(state, arrow, cue))
 
     suspend fun sendStopped(): SendResult = send(mapOf(Protocol.NAV_ACTIVE to PebbleDictionaryItem.UInt8(0)))
 
-    suspend fun sendFrame(width: Int, height: Int, zoom: Double, data: ByteArray): SendResult {
+    suspend fun sendFrame(
+        width: Int,
+        height: Int,
+        zoom: Double,
+        data: ByteArray,
+    ): SendResult {
         frameId = (frameId + 1) and 0xff
         for (chunk in FrameChunks.split(frameId, width, height, zoom, data, chunkSize)) {
             val result = send(chunk)
@@ -54,7 +92,11 @@ class WatchLink(context: Context) {
 
     fun close() = sender.close()
 
-    private fun navDictionary(state: NavState, arrow: ByteArray?, cue: ByteArray?): PebbleDictionary {
+    private fun navDictionary(
+        state: NavState,
+        arrow: ByteArray?,
+        cue: ByteArray?,
+    ): PebbleDictionary {
         val dictionary = HashMap<UInt, PebbleDictionaryItem>()
         dictionary[Protocol.NAV_ACTIVE] = PebbleDictionaryItem.UInt8(if (state.active) 1 else 0)
         dictionary[Protocol.MANEUVER] = PebbleDictionaryItem.UInt8(state.maneuver.id)
@@ -69,8 +111,7 @@ class WatchLink(context: Context) {
         return dictionary
     }
 
-    private suspend fun send(dictionary: PebbleDictionary): SendResult =
-        request { sender.sendDataToPebble(Protocol.APP_UUID, dictionary) }
+    private suspend fun send(dictionary: PebbleDictionary): SendResult = request { sender.sendDataToPebble(Protocol.APP_UUID, dictionary) }
 
     private suspend fun request(block: suspend () -> Map<WatchIdentifier, TransmissionResult>?): SendResult {
         val pending = requests.async { runCatching { block() } }

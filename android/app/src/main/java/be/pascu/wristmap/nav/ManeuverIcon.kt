@@ -10,11 +10,12 @@ object ManeuverIcon {
     fun pack(source: Bitmap?): ByteArray? {
         if (source == null) return null
         return try {
-            val software = if (source.config == Bitmap.Config.HARDWARE) {
-                source.copy(Bitmap.Config.ARGB_8888, false)
-            } else {
-                source
-            }
+            val software =
+                if (source.config == Bitmap.Config.HARDWARE) {
+                    source.copy(Bitmap.Config.ARGB_8888, false)
+                } else {
+                    source
+                }
             val scaled = Bitmap.createScaledBitmap(software, SIZE, SIZE, true)
             val pixels = IntArray(SIZE * SIZE)
             scaled.getPixels(pixels, 0, SIZE, 0, 0, SIZE, SIZE)
@@ -45,7 +46,10 @@ object ManeuverIcon {
 
     private fun alpha(pixel: Int): Int = pixel ushr 24
 
-    private fun differs(pixel: Int, background: Int): Boolean {
+    private fun differs(
+        pixel: Int,
+        background: Int,
+    ): Boolean {
         val dr = ((pixel ushr 16) and 0xff) - ((background ushr 16) and 0xff)
         val dg = ((pixel ushr 8) and 0xff) - ((background ushr 8) and 0xff)
         val db = (pixel and 0xff) - (background and 0xff)

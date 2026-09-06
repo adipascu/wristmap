@@ -18,7 +18,8 @@ GRect ui_map_area(GRect bounds) {
 
 GPoint ui_map_anchor(GRect bounds) {
   GRect area = ui_map_area(bounds);
-  return GPoint(area.origin.x + area.size.w / 2, area.origin.y + area.size.h * MARKER_FRACTION_PERCENT / 100);
+  return GPoint(area.origin.x + area.size.w / 2,
+                area.origin.y + area.size.h * MARKER_FRACTION_PERCENT / 100);
 }
 
 static void draw_text(GContext *ctx, const char *text, const char *font_key, GRect frame,
@@ -59,9 +60,11 @@ static void draw_idle(GContext *ctx, GRect bounds) {
   clock_text(now, sizeof(now));
   GRect clock = GRect(bounds.origin.x + 4, bounds.origin.y + 18, bounds.size.w - 8, 50);
   draw_text(ctx, now, FONT_KEY_BITHAM_42_BOLD, clock, GTextAlignmentCenter);
-  GRect title = GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 - 20, bounds.size.w - 16, 36);
+  GRect title =
+      GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 - 20, bounds.size.w - 16, 36);
   draw_text(ctx, "Wristmap", FONT_KEY_GOTHIC_28_BOLD, title, GTextAlignmentCenter);
-  GRect hint = GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 + 16, bounds.size.w - 16, 80);
+  GRect hint =
+      GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 + 16, bounds.size.w - 16, 80);
   draw_text(ctx, "Start walking or cycling directions in Google Maps", FONT_KEY_GOTHIC_18, hint,
             GTextAlignmentCenter);
 }
@@ -77,10 +80,12 @@ static void draw_top_bar(GContext *ctx, GRect bounds, const NavState *state) {
   bool wide_clock = !clock_is_24h_style();
   int clock_w = wide_clock ? CLOCK_WIDTH_12H : CLOCK_WIDTH_24H;
   draw_text(ctx, now, wide_clock ? FONT_KEY_GOTHIC_24_BOLD : FONT_KEY_GOTHIC_28_BOLD,
-            GRect(bounds.origin.x + bounds.size.w - clock_w - 2, bounds.origin.y + (wide_clock ? 2 : -2), clock_w, 32),
+            GRect(bounds.origin.x + bounds.size.w - clock_w - 2,
+                  bounds.origin.y + (wide_clock ? 2 : -2), clock_w, 32),
             GTextAlignmentRight);
   draw_text(ctx, state->distance, wide_clock ? FONT_KEY_GOTHIC_24_BOLD : FONT_KEY_GOTHIC_28_BOLD,
-            GRect(text_x, bounds.origin.y + (wide_clock ? 2 : -2), text_w - clock_w - 2, 32), GTextAlignmentLeft);
+            GRect(text_x, bounds.origin.y + (wide_clock ? 2 : -2), text_w - clock_w - 2, 32),
+            GTextAlignmentLeft);
   const char *street = state->street[0] ? state->street : state->instruction;
   draw_text(ctx, street, FONT_KEY_GOTHIC_18, GRect(text_x, bounds.origin.y + 30, text_w, 24),
             GTextAlignmentLeft);
@@ -88,7 +93,8 @@ static void draw_top_bar(GContext *ctx, GRect bounds, const NavState *state) {
   graphics_context_set_stroke_color(ctx, GColorBlack);
   graphics_context_set_stroke_width(ctx, 1);
   int line_y = bounds.origin.y + TOP_BAR_HEIGHT - 1;
-  graphics_draw_line(ctx, GPoint(bounds.origin.x, line_y), GPoint(bounds.origin.x + bounds.size.w, line_y));
+  graphics_draw_line(ctx, GPoint(bounds.origin.x, line_y),
+                     GPoint(bounds.origin.x + bounds.size.w, line_y));
 }
 
 static void draw_bottom_bar(GContext *ctx, GRect bounds, const NavState *state) {
@@ -101,7 +107,8 @@ static void draw_bottom_bar(GContext *ctx, GRect bounds, const NavState *state) 
 
 static void draw_map(GContext *ctx, GRect area, int32_t scale_256, GPoint anchor) {
   if (!map_frame_has_bitmap()) {
-    GRect frame = GRect(area.origin.x + 8, area.origin.y + area.size.h / 2 - 12, area.size.w - 16, 40);
+    GRect frame =
+        GRect(area.origin.x + 8, area.origin.y + area.size.h / 2 - 12, area.size.w - 16, 40);
     draw_text(ctx, "Waiting for map...", FONT_KEY_GOTHIC_18, frame, GTextAlignmentCenter);
     return;
   }

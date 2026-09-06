@@ -8,14 +8,19 @@ import org.junit.Test
 class RoutePreviewTest {
     private val mainStreet = floatArrayOf(0f, 0f, 1000f, 0f)
     private val crossStreet = floatArrayOf(500f, -300f, 500f, 300f)
-    private val tile = TileData(
-        originX = 0,
-        originY = 0,
-        roads = listOf(Road(mainStreet, RoadKind.MINOR, emptyList()), Road(crossStreet, RoadKind.MINOR, emptyList())),
-        namedRoads = listOf(Road(mainStreet, RoadKind.MINOR, listOf("Main Street")), Road(crossStreet, RoadKind.MINOR, listOf("Rue Test - Teststraat"))),
-        water = emptyList(),
-        waterways = emptyList(),
-    )
+    private val tile =
+        TileData(
+            originX = 0,
+            originY = 0,
+            roads = listOf(Road(mainStreet, RoadKind.MINOR, emptyList()), Road(crossStreet, RoadKind.MINOR, emptyList())),
+            namedRoads =
+                listOf(
+                    Road(mainStreet, RoadKind.MINOR, listOf("Main Street")),
+                    Road(crossStreet, RoadKind.MINOR, listOf("Rue Test - Teststraat")),
+                ),
+            water = emptyList(),
+            waterways = emptyList(),
+        )
 
     @Test
     fun walksAlongRoadAndSnapsTurnToNamedStreet() {
@@ -39,7 +44,15 @@ class RoutePreviewTest {
     fun stopsFollowingAtSharpCorner() {
         val first = floatArrayOf(0f, 0f, 100f, 0f)
         val second = floatArrayOf(100f, 0f, 100f, 200f)
-        val joined = TileData(0, 0, listOf(Road(first, RoadKind.MINOR, emptyList()), Road(second, RoadKind.MINOR, emptyList())), emptyList(), emptyList(), emptyList())
+        val joined =
+            TileData(
+                0,
+                0,
+                listOf(Road(first, RoadKind.MINOR, emptyList()), Road(second, RoadKind.MINOR, emptyList())),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+            )
         val preview = RoutePreview.build(0.0, 0.0, 90.0, 250.0, "", listOf(joined), 1.0)
         assertEquals(250f, preview.turnX, 0.5f)
         assertEquals(0f, preview.turnY, 0.5f)
@@ -57,7 +70,15 @@ class RoutePreviewTest {
     fun continuesOntoConnectedRoadPastEnd() {
         val first = floatArrayOf(0f, 0f, 100f, 0f)
         val second = floatArrayOf(100f, 0f, 273.2f, 100f)
-        val joined = TileData(0, 0, listOf(Road(first, RoadKind.MINOR, emptyList()), Road(second, RoadKind.MINOR, emptyList())), emptyList(), emptyList(), emptyList())
+        val joined =
+            TileData(
+                0,
+                0,
+                listOf(Road(first, RoadKind.MINOR, emptyList()), Road(second, RoadKind.MINOR, emptyList())),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+            )
         val preview = RoutePreview.build(0.0, 0.0, 90.0, 250.0, "", listOf(joined), 1.0)
         assertEquals(229.9f, preview.turnX, 0.5f)
         assertEquals(75f, preview.turnY, 0.5f)

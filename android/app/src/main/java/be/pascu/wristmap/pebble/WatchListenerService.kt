@@ -9,7 +9,6 @@ import io.rebble.pebblekit2.common.model.WatchIdentifier
 import java.util.UUID
 
 class WatchListenerService : BasePebbleListenerService() {
-
     override suspend fun onMessageReceived(
         watchappUUID: UUID,
         data: PebbleDictionary,
@@ -27,21 +26,28 @@ class WatchListenerService : BasePebbleListenerService() {
         return ReceiveResult.Ack
     }
 
-    override fun onAppOpened(watchappUUID: UUID, watch: WatchIdentifier) {
+    override fun onAppOpened(
+        watchappUUID: UUID,
+        watch: WatchIdentifier,
+    ) {
         if (watchappUUID == Protocol.APP_UUID) Navigator.onWatchAppOpened()
     }
 
-    override fun onAppClosed(watchappUUID: UUID, watch: WatchIdentifier) {
+    override fun onAppClosed(
+        watchappUUID: UUID,
+        watch: WatchIdentifier,
+    ) {
         if (watchappUUID == Protocol.APP_UUID) Navigator.onWatchAppClosed()
     }
 
-    private fun number(item: PebbleDictionaryItem?): Long? = when (item) {
-        is PebbleDictionaryItem.UInt8 -> item.value.toLong()
-        is PebbleDictionaryItem.UInt16 -> item.value.toLong()
-        is PebbleDictionaryItem.UInt32 -> item.value.toLong()
-        is PebbleDictionaryItem.Int8 -> item.value.toLong()
-        is PebbleDictionaryItem.Int16 -> item.value.toLong()
-        is PebbleDictionaryItem.Int32 -> item.value.toLong()
-        else -> null
-    }
+    private fun number(item: PebbleDictionaryItem?): Long? =
+        when (item) {
+            is PebbleDictionaryItem.UInt8 -> item.value.toLong()
+            is PebbleDictionaryItem.UInt16 -> item.value.toLong()
+            is PebbleDictionaryItem.UInt32 -> item.value.toLong()
+            is PebbleDictionaryItem.Int8 -> item.value.toLong()
+            is PebbleDictionaryItem.Int16 -> item.value.toLong()
+            is PebbleDictionaryItem.Int32 -> item.value.toLong()
+            else -> null
+        }
 }

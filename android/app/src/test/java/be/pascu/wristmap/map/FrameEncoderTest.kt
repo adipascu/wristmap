@@ -6,7 +6,14 @@ import org.junit.Test
 class FrameEncoderTest {
     @Test
     fun packsFourPixelsPerByteMsbFirst() {
-        val pixels = intArrayOf(FrameEncoder.COLOR_WHITE, FrameEncoder.COLOR_BLACK, FrameEncoder.COLOR_GRAY, FrameEncoder.COLOR_ACCENT, FrameEncoder.COLOR_BLACK)
+        val pixels =
+            intArrayOf(
+                FrameEncoder.COLOR_WHITE,
+                FrameEncoder.COLOR_BLACK,
+                FrameEncoder.COLOR_GRAY,
+                FrameEncoder.COLOR_ACCENT,
+                FrameEncoder.COLOR_BLACK,
+            )
         val packed = FrameEncoder.encode(pixels, 5, 1)
         assertEquals(2, packed.size)
         assertEquals(0x1B.toByte(), packed[0])

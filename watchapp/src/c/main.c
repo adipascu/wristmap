@@ -24,7 +24,8 @@ static uint8_t s_frames_since_liftoff;
 static uint8_t s_zoom_send_failures;
 
 static int32_t pow2_256(int32_t exponent_100) {
-  int32_t whole = exponent_100 >= 0 ? exponent_100 / ZOOM_SCALE : -((-exponent_100 + ZOOM_SCALE - 1) / ZOOM_SCALE);
+  int32_t whole = exponent_100 >= 0 ? exponent_100 / ZOOM_SCALE
+                                    : -((-exponent_100 + ZOOM_SCALE - 1) / ZOOM_SCALE);
   int32_t fraction_256 = (exponent_100 - whole * ZOOM_SCALE) * 256 / ZOOM_SCALE;
   int32_t scaled = 256 + ((fraction_256 * (168 + ((88 * fraction_256) >> 8))) >> 8);
   return whole >= 0 ? scaled << whole : scaled >> -whole;
@@ -186,7 +187,8 @@ static void inbox_dropped(AppMessageResult reason, void *context) {
 
 static void outbox_failed(DictionaryIterator *iter, AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_WARNING, "outbox failed: %d", reason);
-  if (dict_find(iter, KEY_ZOOM_LEVEL) && s_zoom_target && s_zoom_send_failures < ZOOM_SEND_MAX_RETRIES) {
+  if (dict_find(iter, KEY_ZOOM_LEVEL) && s_zoom_target &&
+      s_zoom_send_failures < ZOOM_SEND_MAX_RETRIES) {
     s_zoom_send_failures++;
     s_zoom_unsent = true;
     if (!s_zoom_timer) {
@@ -218,9 +220,9 @@ static void init(void) {
   window_set_background_color(s_window, GColorWhite);
   window_set_touch_bridge_disabled(s_window, true);
   window_set_window_handlers(s_window, (WindowHandlers){
-    .load = window_load,
-    .unload = window_unload,
-  });
+                                           .load = window_load,
+                                           .unload = window_unload,
+                                       });
 
   app_message_register_inbox_received(inbox_received);
   app_message_register_inbox_dropped(inbox_dropped);

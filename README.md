@@ -111,6 +111,16 @@ cd android
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
+Formatting and lint run as a pre-commit hook and as the `check` job in CI, through
+[pre-commit](https://pre-commit.com): `clang-format` for the C sources, `ruff` for the Python
+scripts, `ktlint` (through the Gradle plugin) for Kotlin, `actionlint` for the workflows, and
+the Android unit tests on staged Android files. Install the hook once per clone:
+
+```
+pipx install pre-commit
+pre-commit install
+```
+
 `scripts/emu-send.py` drives the watchapp in the emulator without a phone: it sends a demo
 navigation state, a synthetic test pattern, or a frame the companion wrote to its cache
 directory (`last-frame.wmf`, pull it with `adb shell run-as be.pascu.wristmap cat cache/last-frame.wmf`).

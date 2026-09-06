@@ -13,27 +13,35 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 
-data class NotificationRead(val raw: RawNotification, val icon: Bitmap?)
+data class NotificationRead(
+    val raw: RawNotification,
+    val icon: Bitmap?,
+)
 
 object GoogleMapsNotification {
     const val PACKAGE = "com.google.android.apps.maps"
 
-    private val ignoredLines = setOf("google maps", "maps", "navigation", "exit navigation", "quitter la navigation", "navigatie afsluiten", "•", "·")
+    private val ignoredLines =
+        setOf("google maps", "maps", "navigation", "exit navigation", "quitter la navigation", "navigatie afsluiten", "•", "·")
     private val iconViewNames = setOf("nav_notification_icon", "right_icon", "lockscreen_notification_icon")
-    private val extraKeys = listOf(
-        Notification.EXTRA_TITLE,
-        Notification.EXTRA_TEXT,
-        Notification.EXTRA_BIG_TEXT,
-        Notification.EXTRA_SUB_TEXT,
-        Notification.EXTRA_INFO_TEXT,
-        Notification.EXTRA_SUMMARY_TEXT,
-    )
+    private val extraKeys =
+        listOf(
+            Notification.EXTRA_TITLE,
+            Notification.EXTRA_TEXT,
+            Notification.EXTRA_BIG_TEXT,
+            Notification.EXTRA_SUB_TEXT,
+            Notification.EXTRA_INFO_TEXT,
+            Notification.EXTRA_SUMMARY_TEXT,
+        )
 
     fun isFromMaps(sbn: StatusBarNotification): Boolean = sbn.packageName == PACKAGE
 
     fun isNavigation(sbn: StatusBarNotification): Boolean = isFromMaps(sbn) && sbn.isOngoing
 
-    fun read(context: Context, sbn: StatusBarNotification): NotificationRead? {
+    fun read(
+        context: Context,
+        sbn: StatusBarNotification,
+    ): NotificationRead? {
         val lines = LinkedHashSet<String>()
         var icon: Bitmap? = null
 
@@ -59,9 +67,13 @@ object GoogleMapsNotification {
         }
 
         if (icon == null) {
-            icon = runCatching {
-                sbn.notification.getLargeIcon()?.loadDrawable(context)?.let { toBitmap(it) }
-            }.getOrNull()
+            icon =
+                runCatching {
+                    sbn.notification
+                        .getLargeIcon()
+                        ?.loadDrawable(context)
+                        ?.let { toBitmap(it) }
+                }.getOrNull()
         }
 
         if (lines.isEmpty()) return null
@@ -69,17 +81,29 @@ object GoogleMapsNotification {
         return NotificationRead(RawNotification(lines.toList(), rerouting), icon)
     }
 
-    private fun addLine(into: MutableSet<String>, text: CharSequence?) {
+    private fun addLine(
+        into: MutableSet<String>,
+        text: CharSequence?,
+    ) {
         val value = text?.toString()?.trim().orEmpty()
         if (value.isNotEmpty() && value.lowercase() !in ignoredLines) into.add(value)
     }
 
-    private fun walk(mapsContext: Context, view: View, lines: MutableSet<String>): Bitmap? {
+    private fun walk(
+        mapsContext: Context,
+        view: View,
+        lines: MutableSet<String>,
+    ): Bitmap? {
         var icon: Bitmap? = null
         when (view) {
-            is TextView -> addLine(lines, view.text)
-            is ImageView -> if (entryName(mapsContext, view.id) in iconViewNames) {
-                icon = view.drawable?.let { toBitmap(it) }
+            is TextView -> {
+                addLine(lines, view.text)
+            }
+
+            is ImageView -> {
+                if (entryName(mapsContext, view.id) in iconViewNames) {
+                    icon = view.drawable?.let { toBitmap(it) }
+                }
             }
         }
         if (view is ViewGroup) {
@@ -91,25 +115,30 @@ object GoogleMapsNotification {
         return icon
     }
 
-    private fun entryName(context: Context, id: Int): String? = try {
-        if (id > 0) context.resources.getResourceEntryName(id) else null
-    } catch (e: Exception) {
-        null
-    }
-
-    private fun toBitmap(drawable: Drawable): Bitmap? = try {
-        if (drawable is BitmapDrawable && drawable.bitmap != null) {
-            drawable.bitmap.copy(Bitmap.Config.ARGB_8888, false)
-        } else {
-            val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 48
-            val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 48
-            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            drawable.setBounds(0, 0, width, height)
-            drawable.draw(canvas)
-            bitmap
+    private fun entryName(
+        context: Context,
+        id: Int,
+    ): String? =
+        try {
+            if (id > 0) context.resources.getResourceEntryName(id) else null
+        } catch (e: Exception) {
+            null
         }
-    } catch (e: Throwable) {
-        null
-    }
+
+    private fun toBitmap(drawable: Drawable): Bitmap? =
+        try {
+            if (drawable is BitmapDrawable && drawable.bitmap != null) {
+                drawable.bitmap.copy(Bitmap.Config.ARGB_8888, false)
+            } else {
+                val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 48
+                val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 48
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                drawable.setBounds(0, 0, width, height)
+                drawable.draw(canvas)
+                bitmap
+            }
+        } catch (e: Throwable) {
+            null
+        }
 }

@@ -7,7 +7,12 @@ object AutoZoom {
     private const val CYCLING_SPEED_MPS = 4f
     private const val DEFAULT = 17.0
 
-    fun choose(lat: Double, mapHeight: Int, distanceMeters: Double?, speedMps: Float?): Double {
+    fun choose(
+        lat: Double,
+        mapHeight: Int,
+        distanceMeters: Double?,
+        speedMps: Float?,
+    ): Double {
         val ceiling = if (speedMps != null && speedMps > CYCLING_SPEED_MPS) CYCLING_MAX else MAX
         if (distanceMeters == null) return minOf(DEFAULT, ceiling)
         val aheadPixels = MapRenderer.distanceToTop(mapHeight)

@@ -4,12 +4,18 @@ import java.text.Normalizer
 
 enum class RoadKind { MOTORWAY, PRIMARY, SECONDARY, MINOR, SERVICE, PATH, CYCLEWAY, RAIL }
 
-class Road(val points: FloatArray, val kind: RoadKind, val names: List<String>) {
+class Road(
+    val points: FloatArray,
+    val kind: RoadKind,
+    val names: List<String>,
+) {
     val displayName: String? get() = names.firstOrNull()
     val normalizedNames: List<String> = names.map { Names.normalize(it) }
 }
 
-class Area(val rings: List<FloatArray>)
+class Area(
+    val rings: List<FloatArray>,
+)
 
 class TileData(
     val originX: Int,
@@ -20,28 +26,35 @@ class TileData(
     val waterways: List<FloatArray>,
 ) {
     val approximateBytes: Int =
-        (roads.sumOf { it.points.size } + namedRoads.sumOf { it.points.size } +
-            water.sumOf { area -> area.rings.sumOf { it.size } } + waterways.sumOf { it.size }) * 4 +
+        (
+            roads.sumOf { it.points.size } + namedRoads.sumOf { it.points.size } +
+                water.sumOf { area -> area.rings.sumOf { it.size } } + waterways.sumOf { it.size }
+        ) * 4 +
             (roads.size + namedRoads.size + water.size + waterways.size) * 64
 
     companion object {
         val LAYERS = setOf("transportation", "transportation_name", "water", "waterway")
 
-        fun fromMvt(tileX: Int, tileY: Int, layers: List<MvtLayer>): TileData {
+        fun fromMvt(
+            tileX: Int,
+            tileY: Int,
+            layers: List<MvtLayer>,
+        ): TileData {
             val roads = ArrayList<Road>()
             val namedRoads = ArrayList<Road>()
             val water = ArrayList<Area>()
             val waterways = ArrayList<FloatArray>()
             for (layer in layers) {
                 val scale = WebMercator.EXTENT.toFloat() / layer.extent
-                fun scaled(points: FloatArray): FloatArray =
-                    if (scale == 1f) points else FloatArray(points.size) { points[it] * scale }
+
+                fun scaled(points: FloatArray): FloatArray = if (scale == 1f) points else FloatArray(points.size) { points[it] * scale }
                 when (layer.name) {
                     "transportation" -> for (feature in layer.features) {
                         if (feature.type != MvtFeature.LINESTRING) continue
                         val kind = roadKind(feature.tags) ?: continue
                         for (part in feature.geometry) roads.add(Road(scaled(part), kind, emptyList()))
                     }
+
                     "transportation_name" -> for (feature in layer.features) {
                         if (feature.type != MvtFeature.LINESTRING) continue
                         val kind = roadKind(feature.tags) ?: RoadKind.MINOR
@@ -49,10 +62,12 @@ class TileData(
                         if (names.isEmpty()) continue
                         for (part in feature.geometry) namedRoads.add(Road(scaled(part), kind, names))
                     }
+
                     "water" -> for (feature in layer.features) {
                         if (feature.type != MvtFeature.POLYGON) continue
                         water.add(Area(feature.geometry.map { scaled(it) }))
                     }
+
                     "waterway" -> for (feature in layer.features) {
                         if (feature.type != MvtFeature.LINESTRING) continue
                         for (part in feature.geometry) waterways.add(scaled(part))
@@ -95,14 +110,18 @@ object Names {
     private val spaces = Regex("""\s+""")
 
     fun normalize(name: String): String =
-        Normalizer.normalize(name, Normalizer.Form.NFD)
+        Normalizer
+            .normalize(name, Normalizer.Form.NFD)
             .replace(marks, "")
             .lowercase()
             .replace(strip, " ")
             .replace(spaces, " ")
             .trim()
 
-    fun matches(candidates: List<String>, wanted: String): Boolean {
+    fun matches(
+        candidates: List<String>,
+        wanted: String,
+    ): Boolean {
         if (wanted.length < 3) return false
         return candidates.any { candidate ->
             candidate == wanted ||

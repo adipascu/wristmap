@@ -5,6 +5,7 @@ Run with pebble-tool's Python so libpebble2 and pebble_tool are importable:
   ~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --demo
   ~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --frame frame.wmf
 """
+
 import argparse
 import struct
 import threading
@@ -13,8 +14,14 @@ import uuid
 
 from libpebble2.communication import PebbleConnection
 from libpebble2.protocol.apps import AppRunState, AppRunStateStart, AppRunStateStop
-from libpebble2.services.appmessage import (AppMessageService, ByteArray, CString, Uint8, Uint16,
-                                            Uint32)
+from libpebble2.services.appmessage import (
+    AppMessageService,
+    ByteArray,
+    CString,
+    Uint8,
+    Uint16,
+    Uint32,
+)
 from pebble_tool.sdk.emulator import ManagedEmulatorTransport
 
 APP_UUID = uuid.UUID("58b9be94-3f7b-4338-94e5-90890b2ab7a0")
@@ -74,7 +81,7 @@ class Link:
         self.acks[tid] = event
         started = time.time()
         if not event.wait(timeout):
-            raise RuntimeError("no ack for transaction %d" % tid)
+            raise RuntimeError(f"no ack for transaction {tid}")
         return event.result, time.time() - started
 
 
@@ -105,7 +112,7 @@ def send_frame(link, width, height, data, chunk_size, zoom, frame_id=1):
     offset = 0
     started = time.time()
     while offset < total:
-        chunk = data[offset:offset + chunk_size]
+        chunk = data[offset : offset + chunk_size]
         dictionary = {
             KEY_MAP_FRAME: Uint8(frame_id),
             KEY_MAP_OFFSET: Uint32(offset),
@@ -115,11 +122,11 @@ def send_frame(link, width, height, data, chunk_size, zoom, frame_id=1):
             dictionary[KEY_MAP_WIDTH] = Uint16(width)
             dictionary[KEY_MAP_HEIGHT] = Uint16(height)
             dictionary[KEY_MAP_TOTAL] = Uint32(total)
-            dictionary[KEY_MAP_ZOOM] = Uint16(int(round(zoom * 100)))
+            dictionary[KEY_MAP_ZOOM] = Uint16(round(zoom * 100))
         result, elapsed = link.send(dictionary)
-        print("chunk @%d len %d -> %s in %.2fs" % (offset, len(chunk), result, elapsed))
+        print(f"chunk @{offset} len {len(chunk)} -> {result} in {elapsed:.2f}s")
         offset += len(chunk)
-    print("frame %dx%d, %d bytes in %.2fs" % (width, height, total, time.time() - started))
+    print(f"frame {width}x{height}, {total} bytes in {time.time() - started:.2f}s")
 
 
 def demo_arrow():
@@ -142,7 +149,11 @@ def main():
     parser.add_argument("--frame", help="send a .wmf frame file (u16 w, u16 h, packed 2bpp rows)")
     parser.add_argument("--chunk", type=int, default=0, help="chunk size, default from watch hello")
     parser.add_argument("--zoom", type=float, default=16.0, help="zoom level stamped on the frame")
-    parser.add_argument("--launch", action="store_true", help="restart the watchapp first and wait for its hello")
+    parser.add_argument(
+        "--launch",
+        action="store_true",
+        help="restart the watchapp first and wait for its hello",
+    )
     args = parser.parse_args()
 
     link = Link(args.platform)
@@ -156,17 +167,19 @@ def main():
         print(link.send({KEY_NAV_ACTIVE: Uint8(0)}))
         return
     if args.demo:
-        result = link.send({
-            KEY_NAV_ACTIVE: Uint8(1),
-            KEY_MANEUVER: Uint8(2),
-            KEY_ARROW_BITMAP: ByteArray(demo_arrow()),
-            KEY_DISTANCE: CString("200 m"),
-            KEY_STREET: CString("Rue de la Loi"),
-            KEY_INSTRUCTION: CString("Turn left onto Rue de la Loi"),
-            KEY_ETA: CString("10:45"),
-            KEY_DIST_REMAIN: CString("2.1 km"),
-            KEY_TIME_REMAIN: CString("14 min"),
-        })
+        result = link.send(
+            {
+                KEY_NAV_ACTIVE: Uint8(1),
+                KEY_MANEUVER: Uint8(2),
+                KEY_ARROW_BITMAP: ByteArray(demo_arrow()),
+                KEY_DISTANCE: CString("200 m"),
+                KEY_STREET: CString("Rue de la Loi"),
+                KEY_INSTRUCTION: CString("Turn left onto Rue de la Loi"),
+                KEY_ETA: CString("10:45"),
+                KEY_DIST_REMAIN: CString("2.1 km"),
+                KEY_TIME_REMAIN: CString("14 min"),
+            }
+        )
         print("demo state ->", result)
 
     inbox_max = hello.get(41, 2048)

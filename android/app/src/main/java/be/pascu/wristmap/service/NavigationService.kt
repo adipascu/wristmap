@@ -23,13 +23,21 @@ import be.pascu.wristmap.R
 
 class NavigationService : Service() {
     private lateinit var locationManager: LocationManager
-    private val listener = object : LocationListener {
-        override fun onLocationChanged(location: Location) = Navigator.onLocation(location)
-        override fun onProviderEnabled(provider: String) {}
-        override fun onProviderDisabled(provider: String) {}
-        @Deprecated("Deprecated in Java")
-        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-    }
+    private val listener =
+        object : LocationListener {
+            override fun onLocationChanged(location: Location) = Navigator.onLocation(location)
+
+            override fun onProviderEnabled(provider: String) {}
+
+            override fun onProviderDisabled(provider: String) {}
+
+            @Deprecated("Deprecated in Java")
+            override fun onStatusChanged(
+                provider: String?,
+                status: Int,
+                extras: Bundle?,
+            ) {}
+        }
     private var listening = false
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -39,7 +47,11 @@ class NavigationService : Service() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         try {
             startAsForeground()
         } catch (e: Exception) {
@@ -61,19 +73,25 @@ class NavigationService : Service() {
         val manager = getSystemService(NotificationManager::class.java)
         if (manager.getNotificationChannel(CHANNEL_ID) == null) {
             manager.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, getString(R.string.channel_name), NotificationManager.IMPORTANCE_LOW)
+                NotificationChannel(CHANNEL_ID, getString(R.string.channel_name), NotificationManager.IMPORTANCE_LOW),
             )
         }
-        val openApp = PendingIntent.getActivity(
-            this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
-        )
-        val notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.service_title))
-            .setContentText(getString(R.string.service_text))
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentIntent(openApp)
-            .setOngoing(true)
-            .build()
+        val openApp =
+            PendingIntent.getActivity(
+                this,
+                0,
+                Intent(this, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+        val notification =
+            Notification
+                .Builder(this, CHANNEL_ID)
+                .setContentTitle(getString(R.string.service_title))
+                .setContentText(getString(R.string.service_text))
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentIntent(openApp)
+                .setOngoing(true)
+                .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
         } else {
@@ -127,8 +145,7 @@ class NavigationService : Service() {
         private const val NOTIFICATION_ID = 7
         private const val UPDATE_INTERVAL_MS = 1000L
 
-        fun start(context: Context): Boolean =
-            context.startForegroundService(Intent(context, NavigationService::class.java)) != null
+        fun start(context: Context): Boolean = context.startForegroundService(Intent(context, NavigationService::class.java)) != null
 
         fun stop(context: Context) {
             context.stopService(Intent(context, NavigationService::class.java))

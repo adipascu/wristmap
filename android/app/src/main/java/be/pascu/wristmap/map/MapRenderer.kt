@@ -24,19 +24,25 @@ class MapRenderer {
         val markerFraction: Float = MARKER_FRACTION,
     )
 
-    private val fill = Paint().apply { style = Paint.Style.FILL; isAntiAlias = false }
-    private val stroke = Paint().apply {
-        style = Paint.Style.STROKE
-        isAntiAlias = false
-        strokeCap = Paint.Cap.ROUND
-        strokeJoin = Paint.Join.ROUND
-    }
-    private val text = Paint().apply {
-        isAntiAlias = false
-        isSubpixelText = false
-        typeface = Typeface.DEFAULT_BOLD
-        textSize = 12f
-    }
+    private val fill =
+        Paint().apply {
+            style = Paint.Style.FILL
+            isAntiAlias = false
+        }
+    private val stroke =
+        Paint().apply {
+            style = Paint.Style.STROKE
+            isAntiAlias = false
+            strokeCap = Paint.Cap.ROUND
+            strokeJoin = Paint.Join.ROUND
+        }
+    private val text =
+        Paint().apply {
+            isAntiAlias = false
+            isSubpixelText = false
+            typeface = Typeface.DEFAULT_BOLD
+            textSize = 12f
+        }
     private val path = Path()
     private val matrix = Matrix()
 
@@ -81,7 +87,12 @@ class MapRenderer {
         return bitmap
     }
 
-    private fun drawTile(canvas: Canvas, tile: TileData, pixelsPerUnit: Float, zoom: Double) {
+    private fun drawTile(
+        canvas: Canvas,
+        tile: TileData,
+        pixelsPerUnit: Float,
+        zoom: Double,
+    ) {
         val detail = detailFor(zoom)
         fill.color = FrameEncoder.COLOR_GRAY
         for (area in tile.water) {
@@ -126,38 +137,55 @@ class MapRenderer {
         }
     }
 
-    private fun detailFor(zoom: Double): Int = when {
-        zoom >= 17.0 -> 3
-        zoom >= 16.0 -> 2
-        zoom >= 15.0 -> 1
-        else -> 0
-    }
+    private fun detailFor(zoom: Double): Int =
+        when {
+            zoom >= 17.0 -> 3
+            zoom >= 16.0 -> 2
+            zoom >= 15.0 -> 1
+            else -> 0
+        }
 
-    private fun casingWidth(kind: RoadKind, detail: Int): Float = when (kind) {
-        RoadKind.MOTORWAY -> floatArrayOf(5f, 6f, 8f, 9f)[detail]
-        RoadKind.PRIMARY -> floatArrayOf(4f, 5f, 7f, 8f)[detail]
-        RoadKind.SECONDARY -> floatArrayOf(3f, 4f, 6f, 7f)[detail]
-        RoadKind.MINOR -> floatArrayOf(1f, 3f, 5f, 6f)[detail]
-        RoadKind.SERVICE -> floatArrayOf(0f, 0f, 3f, 4f)[detail]
-        else -> 0f
-    }
+    private fun casingWidth(
+        kind: RoadKind,
+        detail: Int,
+    ): Float =
+        when (kind) {
+            RoadKind.MOTORWAY -> floatArrayOf(5f, 6f, 8f, 9f)[detail]
+            RoadKind.PRIMARY -> floatArrayOf(4f, 5f, 7f, 8f)[detail]
+            RoadKind.SECONDARY -> floatArrayOf(3f, 4f, 6f, 7f)[detail]
+            RoadKind.MINOR -> floatArrayOf(1f, 3f, 5f, 6f)[detail]
+            RoadKind.SERVICE -> floatArrayOf(0f, 0f, 3f, 4f)[detail]
+            else -> 0f
+        }
 
-    private fun coreWidth(kind: RoadKind, detail: Int): Float = when (kind) {
-        RoadKind.MOTORWAY -> floatArrayOf(3f, 4f, 4f, 5f)[detail]
-        RoadKind.PRIMARY -> floatArrayOf(2f, 3f, 3f, 4f)[detail]
-        RoadKind.SECONDARY -> floatArrayOf(1f, 2f, 2f, 3f)[detail]
-        RoadKind.MINOR -> floatArrayOf(0f, 1f, 1f, 2f)[detail]
-        RoadKind.SERVICE -> floatArrayOf(0f, 0f, 1f, 2f)[detail]
-        else -> 0f
-    }
+    private fun coreWidth(
+        kind: RoadKind,
+        detail: Int,
+    ): Float =
+        when (kind) {
+            RoadKind.MOTORWAY -> floatArrayOf(3f, 4f, 4f, 5f)[detail]
+            RoadKind.PRIMARY -> floatArrayOf(2f, 3f, 3f, 4f)[detail]
+            RoadKind.SECONDARY -> floatArrayOf(1f, 2f, 2f, 3f)[detail]
+            RoadKind.MINOR -> floatArrayOf(0f, 1f, 1f, 2f)[detail]
+            RoadKind.SERVICE -> floatArrayOf(0f, 0f, 1f, 2f)[detail]
+            else -> 0f
+        }
 
-    private fun thinWidth(kind: RoadKind, detail: Int): Float = when (kind) {
-        RoadKind.PATH -> floatArrayOf(0f, 0f, 1f, 1f)[detail]
-        RoadKind.CYCLEWAY -> floatArrayOf(0f, 1f, 2f, 2f)[detail]
-        else -> 0f
-    }
+    private fun thinWidth(
+        kind: RoadKind,
+        detail: Int,
+    ): Float =
+        when (kind) {
+            RoadKind.PATH -> floatArrayOf(0f, 0f, 1f, 1f)[detail]
+            RoadKind.CYCLEWAY -> floatArrayOf(0f, 1f, 2f, 2f)[detail]
+            else -> 0f
+        }
 
-    private fun drawPreview(canvas: Canvas, preview: Preview, pixelsPerUnit: Float) {
+    private fun drawPreview(
+        canvas: Canvas,
+        preview: Preview,
+        pixelsPerUnit: Float,
+    ) {
         stroke.pathEffect = null
         stroke.color = FrameEncoder.COLOR_ACCENT
         stroke.strokeWidth = 4f / pixelsPerUnit
@@ -168,7 +196,11 @@ class MapRenderer {
         }
     }
 
-    private fun drawTurnMarker(canvas: Canvas, preview: Preview, spec: Spec) {
+    private fun drawTurnMarker(
+        canvas: Canvas,
+        preview: Preview,
+        spec: Spec,
+    ) {
         if (!preview.hasTurn) return
         val point = floatArrayOf(preview.turnX, preview.turnY)
         matrix.mapPoints(point)
@@ -191,7 +223,11 @@ class MapRenderer {
         }
     }
 
-    private fun drawPositionMarker(canvas: Canvas, x: Float, y: Float) {
+    private fun drawPositionMarker(
+        canvas: Canvas,
+        x: Float,
+        y: Float,
+    ) {
         path.reset()
         path.fillType = Path.FillType.WINDING
         path.moveTo(x, y - 10f)
@@ -207,7 +243,10 @@ class MapRenderer {
         canvas.drawPath(path, fill)
     }
 
-    private fun drawScaleBar(canvas: Canvas, spec: Spec) {
+    private fun drawScaleBar(
+        canvas: Canvas,
+        spec: Spec,
+    ) {
         val metersPerPixel = WebMercator.metersPerPixel(spec.lat, spec.zoom)
         val meters = SCALE_STEPS.lastOrNull { it / metersPerPixel <= 64.0 } ?: SCALE_STEPS.first()
         val pixels = (meters / metersPerPixel).toFloat()
@@ -227,7 +266,10 @@ class MapRenderer {
         drawLabel(canvas, label, left, baseline - 7f, spec.width.toFloat())
     }
 
-    private fun drawCompass(canvas: Canvas, spec: Spec) {
+    private fun drawCompass(
+        canvas: Canvas,
+        spec: Spec,
+    ) {
         val cx = spec.width - 13f
         val cy = 13f
         fill.color = FrameEncoder.COLOR_WHITE
@@ -248,13 +290,23 @@ class MapRenderer {
         canvas.restore()
     }
 
-    private fun drawRoadLabel(canvas: Canvas, name: String, spec: Spec) {
+    private fun drawRoadLabel(
+        canvas: Canvas,
+        name: String,
+        spec: Spec,
+    ) {
         text.textSize = 12f
         text.color = FrameEncoder.COLOR_BLACK
         drawLabel(canvas, name, 4f, 4f + 11f, spec.width - 30f)
     }
 
-    private fun drawLabel(canvas: Canvas, value: String, x: Float, baseline: Float, maxWidth: Float) {
+    private fun drawLabel(
+        canvas: Canvas,
+        value: String,
+        x: Float,
+        baseline: Float,
+        maxWidth: Float,
+    ) {
         var label = value
         while (label.length > 4 && text.measureText(label) > maxWidth - 6f) {
             label = label.dropLast(2).trimEnd() + "…"
@@ -266,14 +318,21 @@ class MapRenderer {
         canvas.drawText(label, x, baseline, text)
     }
 
-    private fun drawCentered(canvas: Canvas, value: String, spec: Spec) {
+    private fun drawCentered(
+        canvas: Canvas,
+        value: String,
+        spec: Spec,
+    ) {
         text.textSize = 14f
         text.color = FrameEncoder.COLOR_BLACK
         val width = text.measureText(value)
         canvas.drawText(value, (spec.width - width) / 2f, spec.height / 2f + 5f, text)
     }
 
-    private fun addPolyline(points: FloatArray, close: Boolean) {
+    private fun addPolyline(
+        points: FloatArray,
+        close: Boolean,
+    ) {
         if (points.size < 4) return
         path.moveTo(points[0], points[1])
         var i = 2
@@ -284,7 +343,10 @@ class MapRenderer {
         if (close) path.close()
     }
 
-    private fun drawPolyline(canvas: Canvas, points: FloatArray) {
+    private fun drawPolyline(
+        canvas: Canvas,
+        points: FloatArray,
+    ) {
         if (points.size < 4) return
         path.reset()
         addPolyline(points, close = false)
@@ -295,10 +357,15 @@ class MapRenderer {
         const val MARKER_FRACTION = 0.7f
         private val SCALE_STEPS = intArrayOf(5, 10, 20, 50, 100, 200, 500, 1000, 2000)
 
-        fun distanceToTop(height: Int, markerFraction: Float = MARKER_FRACTION): Float =
-            height * markerFraction - 16f
+        fun distanceToTop(
+            height: Int,
+            markerFraction: Float = MARKER_FRACTION,
+        ): Float = height * markerFraction - 16f
 
-        fun screenRadiusPixels(width: Int, height: Int, markerFraction: Float = MARKER_FRACTION): Float =
-            hypot(width / 2.0, maxOf(height * markerFraction, height * (1 - markerFraction)).toDouble()).toFloat()
+        fun screenRadiusPixels(
+            width: Int,
+            height: Int,
+            markerFraction: Float = MARKER_FRACTION,
+        ): Float = hypot(width / 2.0, maxOf(height * markerFraction, height * (1 - markerFraction)).toDouble()).toFloat()
     }
 }

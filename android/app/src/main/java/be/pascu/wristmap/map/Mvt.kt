@@ -1,8 +1,16 @@
 package be.pascu.wristmap.map
 
-class MvtLayer(val name: String, val extent: Int, val features: List<MvtFeature>)
+class MvtLayer(
+    val name: String,
+    val extent: Int,
+    val features: List<MvtFeature>,
+)
 
-class MvtFeature(val type: Int, val tags: Map<String, Any>, val geometry: List<FloatArray>) {
+class MvtFeature(
+    val type: Int,
+    val tags: Map<String, Any>,
+    val geometry: List<FloatArray>,
+) {
     companion object {
         const val POINT = 1
         const val LINESTRING = 2
@@ -10,7 +18,11 @@ class MvtFeature(val type: Int, val tags: Map<String, Any>, val geometry: List<F
     }
 }
 
-class ProtoReader(private val buffer: ByteArray, private var position: Int, private val end: Int) {
+class ProtoReader(
+    private val buffer: ByteArray,
+    private var position: Int,
+    private val end: Int,
+) {
     fun hasMore(): Boolean = position < end
 
     fun readVarint(): Long {
@@ -73,7 +85,10 @@ class ProtoReader(private val buffer: ByteArray, private var position: Int, priv
 }
 
 object Mvt {
-    fun decode(bytes: ByteArray, wantedLayers: Set<String>): List<MvtLayer> {
+    fun decode(
+        bytes: ByteArray,
+        wantedLayers: Set<String>,
+    ): List<MvtLayer> {
         val layers = ArrayList<MvtLayer>()
         val reader = ProtoReader(bytes, 0, bytes.size)
         while (reader.hasMore()) {
@@ -88,9 +103,16 @@ object Mvt {
         return layers
     }
 
-    private class RawFeature(val type: Int, val tags: LongArray, val geometry: LongArray)
+    private class RawFeature(
+        val type: Int,
+        val tags: LongArray,
+        val geometry: LongArray,
+    )
 
-    private fun decodeLayer(reader: ProtoReader, wantedLayers: Set<String>): MvtLayer? {
+    private fun decodeLayer(
+        reader: ProtoReader,
+        wantedLayers: Set<String>,
+    ): MvtLayer? {
         var name = ""
         var extent = 4096
         val keys = ArrayList<String>()
@@ -108,17 +130,18 @@ object Mvt {
             }
         }
         if (name !in wantedLayers) return null
-        val features = featureReaders.map { decodeFeature(it) }.map { raw ->
-            val tags = HashMap<String, Any>()
-            var i = 0
-            while (i + 1 < raw.tags.size) {
-                val key = keys.getOrNull(raw.tags[i].toInt())
-                val value = values.getOrNull(raw.tags[i + 1].toInt())
-                if (key != null && value != null) tags[key] = value
-                i += 2
+        val features =
+            featureReaders.map { decodeFeature(it) }.map { raw ->
+                val tags = HashMap<String, Any>()
+                var i = 0
+                while (i + 1 < raw.tags.size) {
+                    val key = keys.getOrNull(raw.tags[i].toInt())
+                    val value = values.getOrNull(raw.tags[i + 1].toInt())
+                    if (key != null && value != null) tags[key] = value
+                    i += 2
+                }
+                MvtFeature(raw.type, tags, decodeGeometry(raw.geometry))
             }
-            MvtFeature(raw.type, tags, decodeGeometry(raw.geometry))
-        }
         return MvtLayer(name, extent, features)
     }
 
@@ -142,18 +165,37 @@ object Mvt {
         var value: Any = ""
         while (reader.hasMore()) {
             val tag = reader.readTag()
-            value = when (tag ushr 3) {
-                1 -> reader.readString()
-                2 -> java.lang.Float.intBitsToFloat(reader.readFixed32())
-                3 -> java.lang.Double.longBitsToDouble(reader.readFixed64())
-                4, 5 -> reader.readVarint()
-                6 -> zigzag(reader.readVarint())
-                7 -> reader.readVarint() != 0L
-                else -> {
-                    reader.skip(tag and 7)
-                    value
+            value =
+                when (tag ushr 3) {
+                    1 -> {
+                        reader.readString()
+                    }
+
+                    2 -> {
+                        java.lang.Float.intBitsToFloat(reader.readFixed32())
+                    }
+
+                    3 -> {
+                        java.lang.Double.longBitsToDouble(reader.readFixed64())
+                    }
+
+                    4, 5 -> {
+                        reader.readVarint()
+                    }
+
+                    6 -> {
+                        zigzag(reader.readVarint())
+                    }
+
+                    7 -> {
+                        reader.readVarint() != 0L
+                    }
+
+                    else -> {
+                        reader.skip(tag and 7)
+                        value
+                    }
                 }
-            }
         }
         return value
     }
@@ -171,25 +213,36 @@ object Mvt {
             val id = (command and 7).toInt()
             val count = (command ushr 3).toInt()
             when (id) {
-                1 -> repeat(count) {
-                    if (current.size >= 2) parts.add(current.toFloatArray())
-                    current = ArrayList()
-                    x += zigzag(commands[i++])
-                    y += zigzag(commands[i++])
-                    current.add(x.toFloat())
-                    current.add(y.toFloat())
+                1 -> {
+                    repeat(count) {
+                        if (current.size >= 2) parts.add(current.toFloatArray())
+                        current = ArrayList()
+                        x += zigzag(commands[i++])
+                        y += zigzag(commands[i++])
+                        current.add(x.toFloat())
+                        current.add(y.toFloat())
+                    }
                 }
-                2 -> repeat(count) {
-                    x += zigzag(commands[i++])
-                    y += zigzag(commands[i++])
-                    current.add(x.toFloat())
-                    current.add(y.toFloat())
+
+                2 -> {
+                    repeat(count) {
+                        x += zigzag(commands[i++])
+                        y += zigzag(commands[i++])
+                        current.add(x.toFloat())
+                        current.add(y.toFloat())
+                    }
                 }
-                7 -> if (current.size >= 2) {
-                    current.add(current[0])
-                    current.add(current[1])
+
+                7 -> {
+                    if (current.size >= 2) {
+                        current.add(current[0])
+                        current.add(current[1])
+                    }
                 }
-                else -> throw IllegalStateException("unknown geometry command $id")
+
+                else -> {
+                    throw IllegalStateException("unknown geometry command $id")
+                }
             }
         }
         if (current.size >= 2) parts.add(current.toFloatArray())

@@ -6,7 +6,14 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 object FrameChunks {
-    fun split(frameId: Int, width: Int, height: Int, zoom: Double, data: ByteArray, chunkSize: Int): List<PebbleDictionary> {
+    fun split(
+        frameId: Int,
+        width: Int,
+        height: Int,
+        zoom: Double,
+        data: ByteArray,
+        chunkSize: Int,
+    ): List<PebbleDictionary> {
         val chunks = ArrayList<PebbleDictionary>()
         var offset = 0
         while (offset < data.size) {
