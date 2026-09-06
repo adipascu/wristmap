@@ -1,0 +1,2 @@
+-keep class be.pascu.wristmap.pebble.WatchListenerService { *; }
+-keep class be.pascu.wristmap.service.** { *; }
