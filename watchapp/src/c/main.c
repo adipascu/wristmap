@@ -7,6 +7,7 @@
 #define PIXELS_PER_ZOOM_LEVEL 60
 #define LIGHT_HOLD_MS 5000
 #define ZOOM_SEND_INTERVAL_MS 120
+#define ZOOM_SEND_MAX_RETRIES 5
 #define DEFAULT_ZOOM (17 * ZOOM_SCALE)
 
 static Window *s_window;
@@ -19,6 +20,7 @@ static int32_t s_touch_start_zoom;
 static int32_t s_zoom_target;
 static bool s_zoom_unsent;
 static uint8_t s_frames_since_liftoff;
+static uint8_t s_zoom_send_failures;
 
 static int32_t pow2_256(int32_t exponent_100) {
   int32_t whole = exponent_100 >= 0 ? exponent_100 / ZOOM_SCALE : -((-exponent_100 + ZOOM_SCALE - 1) / ZOOM_SCALE);
@@ -94,7 +96,9 @@ static void zoom_changed(void) {
 static void forget_zoom(void) {
   s_zoom_target = 0;
   s_zoom_unsent = false;
+  s_touching = false;
   s_frames_since_liftoff = 0;
+  s_zoom_send_failures = 0;
   if (s_zoom_timer) {
     app_timer_cancel(s_zoom_timer);
     s_zoom_timer = NULL;
@@ -121,6 +125,7 @@ static void touch_handler(const TouchEvent *event, void *context) {
       hold_light();
       s_touching = true;
       s_frames_since_liftoff = 0;
+      s_zoom_send_failures = 0;
       s_touch_start_y = event->y;
       s_touch_start_zoom = current_zoom();
       break;
@@ -179,8 +184,12 @@ static void inbox_dropped(AppMessageResult reason, void *context) {
 
 static void outbox_failed(DictionaryIterator *iter, AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_WARNING, "outbox failed: %d", reason);
-  if (dict_find(iter, KEY_ZOOM_LEVEL) && s_zoom_target) {
-    zoom_changed();
+  if (dict_find(iter, KEY_ZOOM_LEVEL) && s_zoom_target && s_zoom_send_failures < ZOOM_SEND_MAX_RETRIES) {
+    s_zoom_send_failures++;
+    s_zoom_unsent = true;
+    if (!s_zoom_timer) {
+      s_zoom_timer = app_timer_register(ZOOM_SEND_INTERVAL_MS, zoom_timer_fired, NULL);
+    }
   }
 }
 
