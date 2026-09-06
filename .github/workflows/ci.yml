@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  android:
+    name: Android companion
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: android-actions/setup-android@v3
+      - name: Install platform 37
+        run: yes | sdkmanager "platforms;android-37.0" >/dev/null
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build and test
+        run: ./gradlew assembleDebug testDebugUnitTest --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wristmap-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+
+  watchapp:
+    name: Pebble watchapp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pebble-tool
+        run: |
+          sudo apt-get update && sudo apt-get install -y libpng-dev
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/uv" tool install pebble-tool --python 3.13
+      - name: Install SDK
+        run: pebble sdk install latest || true
+      - name: Build
+        working-directory: watchapp
+        run: pebble build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wristmap-pbw
+          path: watchapp/build/*.pbw
