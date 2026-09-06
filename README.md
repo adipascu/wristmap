@@ -140,6 +140,24 @@ the way the companion does (inbox size minus 96 bytes, at most 8000) and draws t
 pattern at the size the watch announced. Without it `--pattern` assumes the emery layout
 (200x152), which the watch rejects on a smaller screen such as basalt.
 
+## Releasing
+
+Bump `version` in `watchapp/package.json`, tag the commit `vX.Y.Z` with the release notes as
+the tag message, and push the tag. The release workflow checks that the tag matches the
+watchapp version, builds both halves, attaches `wristmap.apk`, `wristmap.pbw` and checksums to
+a GitHub release, and then uploads the `.pbw` as a new release of the appstore listing through
+the Rebble developer portal API. Two repository settings drive the last step and the job skips
+with a warning while they are missing:
+
+- the variable `REBBLE_APP_ID`, the 24 character id of the listing on
+  [dev-portal.rebble.io](https://dev-portal.rebble.io),
+- the secret `REBBLE_ACCESS_TOKEN`, the `access_token` the portal keeps in its browser
+  local storage after signing in (open the portal, then in the developer tools run
+  `localStorage.getItem("access_token")`).
+
+The appstore only accepts a release whose version is higher than every published one, which
+the tag check enforces on the repository side.
+
 ## Protocol
 
 Both sides use raw integer AppMessage keys, defined in `watchapp/src/c/protocol.h` and

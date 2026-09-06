@@ -15,6 +15,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Assert the tag matches the watchapp version
+        run: |
+          version="v$(python3 -c 'import json; print(json.load(open("watchapp/package.json"))["version"])')"
+          [ "$version" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} does not match watchapp/package.json ${version}"; exit 1; }
       - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
         with:
           distribution: temurin
@@ -65,3 +69,37 @@ jobs:
       - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64
         with:
           files: dist/*
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: release-pbw
+          path: dist/wristmap.pbw
+          if-no-files-found: error
+
+  publish:
+    name: Publish to the Pebble appstore
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: release-pbw
+      - name: Upload the release to the developer portal
+        env:
+          REBBLE_ACCESS_TOKEN: ${{ secrets.REBBLE_ACCESS_TOKEN }}
+          REBBLE_APP_ID: ${{ vars.REBBLE_APP_ID }}
+        run: |
+          if [ -z "${REBBLE_ACCESS_TOKEN}" ] || [ -z "${REBBLE_APP_ID}" ]; then
+            echo "::warning::REBBLE_ACCESS_TOKEN or REBBLE_APP_ID is not set, the release was not published to the appstore"
+            exit 0
+          fi
+          notes="$(git tag -l --format='%(contents:body)' "${GITHUB_REF_NAME}")"
+          [ -n "${notes}" ] || notes="Wristmap ${GITHUB_REF_NAME}"
+          curl --fail-with-body --silent --show-error \
+            -X POST "https://appstore-api.rebble.io/api/dp/app/${REBBLE_APP_ID}/release" \
+            -H "Authorization: Bearer ${REBBLE_ACCESS_TOKEN}" \
+            -F "release_notes=${notes}" \
+            -F "pbw=@wristmap.pbw"
