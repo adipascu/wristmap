@@ -195,6 +195,10 @@ static void outbox_failed(DictionaryIterator *iter, AppMessageResult reason, voi
   }
 }
 
+static void minute_tick(struct tm *tick_time, TimeUnits units_changed) {
+  layer_mark_dirty(s_layer);
+}
+
 static void window_load(Window *window) {
   Layer *root = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(root);
@@ -225,10 +229,12 @@ static void init(void) {
 
   window_stack_push(s_window, true);
   touch_service_subscribe(touch_handler, NULL);
+  tick_timer_service_subscribe(MINUTE_UNIT, minute_tick);
   send_hello();
 }
 
 static void deinit(void) {
+  tick_timer_service_unsubscribe();
   touch_service_unsubscribe();
   light_enable(false);
   window_destroy(s_window);
