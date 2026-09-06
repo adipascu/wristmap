@@ -1,0 +1,32 @@
+{
+  "name": "wristmap",
+  "author": "Adrian Pascu",
+  "version": "1.0.0",
+  "keywords": ["pebble-app"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Wristmap",
+    "uuid": "58b9be94-3f7b-4338-94e5-90890b2ab7a0",
+    "sdkVersion": "3",
+    "enableMultiJS": false,
+    "targetPlatforms": ["emery", "basalt"],
+    "watchapp": {
+      "watchface": false
+    },
+    "resources": {
+      "media": []
+    },
+    "capabilities": [],
+    "companionApp": {
+      "android": {
+        "url": "https://github.com/adipascu/wristmap",
+        "apps": [
+          {
+            "package": "be.pascu.wristmap"
+          }
+        ]
+      }
+    }
+  }
+}
