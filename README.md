@@ -369,5 +369,8 @@ in order, typos included.
 37. make sure last version is installed
 38. Finish the ideas behind all open MRs, do /mr-polish on them and merge them in, see this session for any contextmake sure to do all the features I asked you as well, via /mr-new /mr-polish and merge it inAt the end make sure latest app is installed on my watch
 
-38 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
+39. Update gobal claude md to do this type of cleanup in each session like I asked you here of unused resources, chrome tabs, globally installed tools, VMs etc. If anything was done that mutated the system state globally, undo it when unused. Clean up  everything unless its something the user asked for to stay.
+40. resume
+
+40 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
 written or edited by a human. One address in prompt 12 is masked.
