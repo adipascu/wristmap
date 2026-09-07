@@ -9,3 +9,7 @@ android/.kotlin/
 .idea/
 .DS_Store
 *.dSYM/
+watchapp/.lock-waf*
+android/keystore.properties
+*.keystore
+*.jks

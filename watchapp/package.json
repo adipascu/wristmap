@@ -1,0 +1,43 @@
+{
+  "name": "maps-for-pebble",
+  "author": "Adrian Pascu",
+  "version": "1.2.0",
+  "keywords": [
+    "pebble-app"
+  ],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Maps Navigation",
+    "uuid": "58b9be94-3f7b-4338-94e5-90890b2ab7a0",
+    "sdkVersion": "3",
+    "enableMultiJS": false,
+    "targetPlatforms": [
+      "emery"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "resources": {
+      "media": [
+        {
+          "type": "png",
+          "name": "MENU_ICON",
+          "file": "images/menu_icon.png",
+          "menuIcon": true
+        }
+      ]
+    },
+    "capabilities": [],
+    "companionApp": {
+      "android": {
+        "url": "https://github.com/peblum/maps-for-pebble",
+        "apps": [
+          {
+            "package": "be.pascu.mapsforpebble"
+          }
+        ]
+      }
+    }
+  }
+}

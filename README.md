@@ -1,4 +1,4 @@
-# Wristmap
+# Maps Navigation for Pebble
 
 Google Maps walking and cycling directions on a Pebble Time 2, with a small map that shows
 where you are and where the next turn is.
@@ -11,6 +11,15 @@ have to turn into, and the trip summary (time left, distance left, arrival time)
 Google Maps has no public API for a running navigation. Everything comes from the ongoing
 navigation notification it posts, so this is Android only.
 
+## Name
+
+The product is called Maps Navigation for Pebble in the store and in headings. Everywhere else a
+user sees it, on the watch, on the phone and in running prose, it is Maps Navigation.
+Identifiers use the code name Maps for Pebble: the repository `peblum/maps-for-pebble`, the
+Android package `be.pascu.mapsforpebble`, the class and Gradle project name `MapsForPebble`,
+the release assets `maps-for-pebble.pbw` and `maps-for-pebble.apk`. The two are kept apart so
+the display name can change without touching an identifier.
+
 ## How it works
 
 ```
@@ -18,7 +27,7 @@ Google Maps (phone)
   posts the ongoing navigation notification (text plus a maneuver icon)
         │
         ▼
-Wristmap companion (Android, this repo)
+Maps Navigation companion (Android, this repo)
   NotificationListenerService reads the text and the icon
   LocationManager gives position, speed and bearing
   OpenFreeMap vector tiles (OpenStreetMap data, zoom 14) are decoded on the phone
@@ -27,10 +36,10 @@ Wristmap companion (Android, this repo)
   MapRenderer draws a 4 colour, heading-up map on a Canvas and packs it as 2 bits per pixel
         │  PebbleKit Android 2 AppMessages (one 8 KB message per chunk)
         ▼
-Wristmap watchapp (C, this repo)
+Maps Navigation watchapp (C, this repo)
   top bar: arrow, distance, street
   map: the phone-rendered bitmap in a palettised GBitmap
-  bottom bar: time left, distance left, arrival time
+  bottom bar: time left and distance left, arrival time on the right
 ```
 
 The next turn is an estimate. Google only tells us "in 200 m, turn left onto Rue X". The
@@ -41,24 +50,63 @@ is drawn in blue, the turn as a blue dot, and the named street is highlighted in
 When you are off the road network it draws a straight line ahead instead.
 
 Zoom follows the distance to the turn so that the turn is on screen (zoom 14 to 18, capped at
-17 when moving faster than 4 m/s, so cycling gets a wider view). Up and down on the watch
-override it for the rest of the trip.
+17 when moving faster than 4 m/s, so cycling gets a wider view). Swiping on the watch
+overrides it for the rest of the trip.
 
 ## Install
 
 Two parts: the watchapp on the watch and the companion on the phone.
 
-1. **Watchapp**: open `wristmap.pbw` from the latest release in the Pebble app, or build it
+1. **Watchapp**: open `maps-for-pebble.pbw` from the latest release in the Pebble app, or build it
    (see below) and sideload it.
-2. **Companion**: install `wristmap.apk` from the latest release. Open it once and grant
-   notification access and location. The app lists what is still missing.
+2. **Companion**: install `maps-for-pebble.apk` from the latest release. If the earlier Wristmap
+   build is on the phone, uninstall it first, since it is a separate package and both would
+   mirror the same directions. Open the new app once and grant
+   notification access, location, and location "all the time". The last one matters: directions
+   start while Google Maps is in front, so the companion's location service starts from the
+   background, and Android only feeds GPS to such a service when background location is allowed.
+   The app lists what is still missing.
 3. Start walking or cycling directions in Google Maps. The watchapp pops up on its own.
 
-On the watch: up and down zoom the map, select toggles between the map and a big arrow view,
-back leaves the app. A short vibration announces every new instruction.
+On the watch: swipe up to zoom in and down to zoom out. The map scales under your finger
+immediately from the frame it already has, and the phone follows with a properly rendered
+frame within a few hundred milliseconds. Any touch turns the backlight on for five seconds.
+The buttons do nothing except back, which leaves the app. A short vibration announces every
+new instruction, or, with "Vibrate turns in Morse code" switched on in the phone app (it is on
+by default), the manoeuvre itself is tapped out in Morse so you can follow directions without
+looking:
+
+| Manoeuvre | Letters | Pattern |
+|-----------|---------|---------|
+| turn left | L | . - . . |
+| turn right | R | . - . |
+| straight on | S | . . . |
+| U-turn | U | . . - |
+| roundabout | O | - - - |
+| destination | D | - . . |
+| merge | M | - - |
+| exit or ramp | X | - . . - |
+| slight turn | E then the letter | . then L or R |
+| sharp turn | T then the letter | - then L or R |
+
+A dot is 100 ms, a dash 300 ms, symbols are 100 ms apart and letters 300 ms apart, so no cue
+is longer than 1.5 s. The cue plays when an instruction first appears and once more when the
+turn is 40 m away. The phone builds the pattern (`MorseCue`) and sends it with the
+instruction, the watch only plays it.
+
+With "Keep the backlight on while cycling" switched on in the phone app (on by default), the
+backlight stays on while the watch faces up once you have moved at cycling speed (3.5 m/s
+for ten seconds) during the trip, so the map is readable on the handlebars. Turning the watch
+face down lets it go dark, and the five second touch backlight works on every trip. The phone
+decides from the GPS speed, since Google Maps does not say which mode is navigating.
 
 The companion needs the Core Devices Pebble app (`coredevices.coreapp`). It is the only Android
 app that implements PebbleKit Android 2, which the companion uses to talk to the watch.
+
+## Documentation
+
+The [docs](docs/README.md) folder covers what the phone needs, [how the pieces fit](docs/how-it-works.md),
+[how the Google Maps notification is read](docs/google-maps.md) and [troubleshooting](docs/troubleshooting.md).
 
 ## Build
 
@@ -71,7 +119,8 @@ pebble build
 pebble install --emulator emery
 ```
 
-Companion, with an Android SDK that has platform 37:
+Companion, with JDK 21 and an Android SDK that has platform 37 (PebbleKit Android 2 ships
+Java 21 class files, so the unit tests need a 21 runtime):
 
 ```
 cd android
@@ -79,20 +128,58 @@ cd android
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
-`scripts/emu-send.py` drives the watchapp in the emulator without a phone: it sends a demo
-navigation state, a synthetic test pattern, or a frame the companion wrote to its cache
-directory (`last-frame.wmf`, pull it with `adb shell run-as be.pascu.wristmap cat cache/last-frame.wmf`).
+Formatting and lint run as a pre-commit hook and as the `check` job in CI, through
+[pre-commit](https://pre-commit.com): `clang-format` for the C sources, `ruff` for the Python
+scripts, `ktlint` (through the Gradle plugin) for Kotlin, `actionlint` for the workflows, and
+the Android unit tests with the coverage gate on staged Android files. Kover requires 100%
+line, instruction and branch coverage of the pure Kotlin (parsing, tiles, route preview,
+encoding, Morse, zoom, chunking). Classes that need Android at runtime (the activity, the
+services, the navigator, the renderer, the tile store, the notification reader, the watch
+link) are excluded from the measurement and covered by the emulator harness and on-device
+runs instead. Install the hook once per clone:
 
 ```
-~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --demo --pattern
+pipx install pre-commit
+pre-commit install
+```
+
+`scripts/emu-send.py` drives the watchapp in the emulator without a phone: it sends a demo
+navigation state, a synthetic test pattern, or a frame the companion wrote to its cache
+directory (`last-frame.wmf`, pull it with `adb shell run-as be.pascu.mapsforpebble cat cache/last-frame.wmf`).
+
+```
+~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --launch --demo --pattern
 ~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --frame last-frame.wmf
 ```
+
+`--launch` restarts the watchapp first so the script sees its hello message, sizes the chunks
+the way the companion does (inbox size minus 96 bytes, at most 8000) and draws the test
+pattern at the size the watch announced. Without it `--pattern` assumes the emery layout
+(200x148), which the watch rejects on a smaller screen such as basalt.
+
+## Releasing
+
+Bump `version` in `watchapp/package.json`, tag the commit `vX.Y.Z` with the release notes as
+the tag message, and push the tag. The release workflow checks that the tag matches the
+watchapp version, builds both halves, attaches `maps-for-pebble.apk`, `maps-for-pebble.pbw` and checksums to
+a GitHub release, and then uploads the `.pbw` as a new release of the appstore listing through
+the Rebble developer portal API. Two repository settings drive the last step and the job skips
+with a warning while they are missing:
+
+- the variable `REBBLE_APP_ID`, the 24 character id of the listing on
+  [dev-portal.rebble.io](https://dev-portal.rebble.io),
+- the secret `REBBLE_ACCESS_TOKEN`, the `access_token` the portal keeps in its browser
+  local storage after signing in (open the portal, then in the developer tools run
+  `localStorage.getItem("access_token")`).
+
+The appstore only accepts a release whose version is higher than every published one, which
+the tag check enforces on the repository side.
 
 ## Protocol
 
 Both sides use raw integer AppMessage keys, defined in `watchapp/src/c/protocol.h` and
 `android/.../pebble/Protocol.kt`. The watchapp UUID is `58b9be94-3f7b-4338-94e5-90890b2ab7a0`
-and the companion package `be.pascu.wristmap` is whitelisted in `watchapp/package.json`.
+and the companion package `be.pascu.mapsforpebble` is whitelisted in `watchapp/package.json`.
 
 Phone to watch:
 
@@ -102,10 +189,18 @@ Phone to watch:
 | 2 | `MANEUVER` | uint8 | fallback arrow when no icon was captured |
 | 3 | `ARROW_BITMAP` | bytes | 40x40, 1 bit per pixel, 5 bytes per row, MSB first |
 | 4..9 | `DISTANCE`, `STREET`, `INSTRUCTION`, `ETA`, `DIST_REMAIN`, `TIME_REMAIN` | cstring | display text |
+| 10 | `HAPTIC_PATTERN` | bytes | vibration segments as little-endian uint16 milliseconds, on and off alternating, starting with on, at most 32 |
+| 11 | `KEEP_LIT` | uint8 | 1 while the phone wants the backlight kept on, the watch then lights it whenever it faces up |
 | 20, 21 | `MAP_WIDTH`, `MAP_HEIGHT` | uint16 | frame size, sent with the first chunk |
 | 22 | `MAP_FRAME` | uint8 | frame id, chunks of another frame are dropped |
 | 23 | `MAP_TOTAL` | uint32 | total packed bytes |
 | 24, 25 | `MAP_OFFSET`, `MAP_DATA` | uint32, bytes | one chunk |
+| 26 | `MAP_ZOOM` | uint16 | zoom of the frame times 100, sent with the first chunk, lets the watch scale it locally while the finger is down |
+
+Chunks of a frame arrive in order: the watch expects each `MAP_OFFSET` to equal the number
+of bytes it already has, ignores a chunk with a lower offset as a duplicate, and drops the
+whole frame on any other gap until the next header. A header whose width or height exceeds
+the map area announced in `HELLO` is rejected.
 
 Watch to phone:
 
@@ -114,7 +209,7 @@ Watch to phone:
 | 40 | `HELLO` | uint8 | sent when the watchapp starts |
 | 41 | `INBOX_MAX` | uint32 | `app_message_inbox_size_maximum()`, sizes the chunks |
 | 42, 43 | `MAP_VIEW_WIDTH`, `MAP_VIEW_HEIGHT` | uint16 | the map area the watch has |
-| 44 | `ZOOM` | uint8 | 1 zoom in, 2 zoom out |
+| 45 | `ZOOM_LEVEL` | uint16 | wanted zoom times 100, sent while swiping, at most every 120 ms |
 
 Map frames are packed 2 bits per pixel, 4 pixels per byte, most significant bits first, rows
 byte aligned, exactly the layout of `GBitmapFormat2BitPalette`. Palette: 0 white, 1 black,
@@ -161,3 +256,121 @@ byte aligned, exactly the layout of `GBitmapFormat2BitPalette`. Palette: 0 white
 ## License
 
 MIT, see `LICENSE`.
+
+---
+
+## Prompts
+
+This project was written end to end by Claude across two sessions. The prompts, verbatim and
+in order, typos included.
+
+1. I need an app for my pebble time 2, the one that recently came out. I need an app that integrates into google maps and shows me the map to help me navigate. It only needs to work when I am already navigating in bicycle mode or walking via google maps on my android.
+
+   Either reuse an app, fork an app or build one from scratch.
+
+   Do the best you can and do /mr-polish on the codebase when done.
+
+   /ship-public-app it on my pascu.be website as well, do the best you can, I am leaving you unattended. If you need me for anything, let me know after you have the app running, we can iterate on it together, yet do the ebst you can unatended until lthen.
+2. You can use any other claude session on this PC for inspiration
+3. Make sure we can see a little preview of where we are and the next turn, a little map or similar visualisation, goal is to see when the next turn is somehow.
+4. also uninstal and revert any changes you did to this computer when you are done
+5. resume
+6. real android phone and watch connected (adb and bt), you can use them to debug,. test, develop, etc.
+
+   When done make sure the new app is installed on my watch and is functional
+7. test on the real devices to make sure it works
+8. /mr-new /mr-polish and merge: add an icon to the app
+
+   /mr-new /mr-polish and merge: make swiping up and down change zoom levels, make this smooth on drag instant responce, zero start lag, zero start distance zero start delay time, instant touch and swipe and instant zoom reaction. When the screen is touched it lights up and stays up for 5s when in this app. Disable the buttons and remove that featuer entirely that shows up when you press the middle butotn
+9. /mr-new /mr-polish and merge: add a feature that can be on/off, configurable via the app, this feature is turn by turn navigation via the taptic engine thing it has, use the most popular standard short vibration code type of language and encode in as short as possible turn by turn navigation, use best communication prtactices for as short as possible yet standardized undarstable turn by turn navigation
+10. /mr-new /mr-polish and merge: add documentation in the repo explaining how the pebble app works, hot its impkemented, how it communicates to google maps, if this needs anything extra installed on the phone to work etc
+11. Btw, I want to discuoonect my phone from usb, transition it to adb over wifi so I can safle remove it from usb and you keep using it over WiFi
+12. add a global claude commadn to kee the phone awake, see recent claude sessions for inspiration on how to do it in a way that nothing is ever instaslled and no configs are changerd on thje phone
+
+    use it, keep the phone awake
+
+    after you are done, do market research of this app vs any other pebble app competitors, show me this via a claude artifact
+
+    If we have a decent chance of being the market leader for this category of pebble app, the take in the best practices from the bachata-bot repo, all that CI/CD unit test, lint etc type of project structure and add in tinto this pebble ap repo, add do /mr-new and /mr-polish on it and megge it in.
+
+    Then do anoter /mr-new and /mr-polish to implent a CI/CD pipeline to auto publish the app on the pebble store from the repo, you can use login with google ****@gmail as a primary way to make or login to accounts, otherwise use bitwarden via the bitwarden skill.
+
+    Also make a global claude.md command to make add this stuff that we are  pulling in from bachata bot now, search inspiration on how we pulled such best practices into other repos from bachata-bot, and make this command in a way thats reusable and we can run it on any repo to promote its code quaity to our standards.
+13. Continue from where you left off.
+14. resume
+15. /mr-new /mr-polish and merge, make the clock larger and make it show near the top, it should be easily readable and mixed in nicely with the nav data
+16. I don't like the current app name, lets pause to do a brainstorming session to find the best name
+
+    after this resume things as usual
+
+    When he decided on the new name, do /mr-new and /mr-polish to swap into the first name, make sure to publish under the new name.
+
+    Let's brainstorm
+
+    Give me options, I want something that is easy to pronounce, easy to spell, relatively short and won't break treadmarks / copyrights (won't get us sued)
+17. give me more options first, let's talk over chat and decide there
+18. use the bitwarden skill to unlock it now in case you need it later
+
+    also make sure the project lives under my pebble fork org.
+
+    Since we mix two products, I want to try to use their names as much as possible
+
+    like "X for Y" or something like that
+
+    still make it in a way that we won't get sued
+19. Only keep for Pebble options
+20. also prefer some name that will SEO well in general on google and also on the pebble app store
+21. go ahead with Maps Navigation for Pebble
+
+    Yet internally just call it Maps for Pebble (for any internal code names, repo name etc), it is very likely in the future we will rename it to just Maps for Pebble, so use that for any immutable places like app id string etc.
+
+    Resume work now.
+
+    Do as many /mr-new and /mr-polish and merges as needed to reach all our goals.
+
+22. /mr-new /mr-polish show the estimated time of arrival somehwre as well. Make sure it fits in with the general design of the UI.
+
+    Show screenshots of the before and after version of any UI change MRs in the MR description.
+
+    Merge this MR when ready
+23. rename tockstone to a mix of rebble and pebble and chromium.
+
+    I mean the org that these sit in on gh
+
+    Let's brainstorm the names first
+24. cleanup a bit my chrome tabs, close all duplicates of the same link
+
+    Close all linkedin ones, close all gogel claendar ones in general
+
+    Close any gitlab ones as well
+
+    Close any meetup ones
+
+    close any latindance.be ones
+25. make sure to clean up after youreself, uninstall any global stuff you might hacve installed, close any unused emualtors and tabs might've opened
+26. where si the brainstorming session?
+27. Keep only easy to pronounce and spell options
+28. avoid double letters
+29. Do Rebrium
+30. Rename the fork that lives under iut as well via /mr-new /mr-polish and merging in te changes
+
+    Repeat as many MRs as needed.
+
+    resume work on the rest
+31. wait, maybe make it easy to pronounce and spell for people that roll their R'sI feel the name can still be improved
+32. What about peblium?
+33. I want it to sound like a chemical element
+34. is this easy to pronounce and spel in all cultures?
+35. do peblum if free, resume
+
+36. /mr-new /mr-polish and mege it in, add a setting that is enabled by default to make the backlight stay on while in this app when the watch is not upside down , ofc reword this setting to follow best practices
+
+    (and make this only apply for when doing bicycle navigation)
+37. make sure last version is installed
+38. Finish the ideas behind all open MRs, do /mr-polish on them and merge them in, see this session for any contextmake sure to do all the features I asked you as well, via /mr-new /mr-polish and merge it inAt the end make sure latest app is installed on my watch
+
+39. Update gobal claude md to do this type of cleanup in each session like I asked you here of unused resources, chrome tabs, globally installed tools, VMs etc. If anything was done that mutated the system state globally, undo it when unused. Clean up  everything unless its something the user asked for to stay.
+40. resume
+
+40 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
+written or edited by a human. One address in prompt 12 is masked.

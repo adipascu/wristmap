@@ -1,0 +1,35 @@
+#pragma once
+
+#define KEY_NAV_ACTIVE 1
+#define KEY_MANEUVER 2
+#define KEY_ARROW_BITMAP 3
+#define KEY_DISTANCE 4
+#define KEY_STREET 5
+#define KEY_INSTRUCTION 6
+#define KEY_ETA 7
+#define KEY_DIST_REMAIN 8
+#define KEY_TIME_REMAIN 9
+#define KEY_HAPTIC_PATTERN 10
+#define KEY_KEEP_LIT 11
+
+#define KEY_MAP_WIDTH 20
+#define KEY_MAP_HEIGHT 21
+#define KEY_MAP_FRAME 22
+#define KEY_MAP_TOTAL 23
+#define KEY_MAP_OFFSET 24
+#define KEY_MAP_DATA 25
+#define KEY_MAP_ZOOM 26
+
+#define KEY_HELLO 40
+#define KEY_INBOX_MAX 41
+#define KEY_MAP_VIEW_WIDTH 42
+#define KEY_MAP_VIEW_HEIGHT 43
+#define KEY_ZOOM_LEVEL 45
+
+#define ZOOM_SCALE 100
+#define ZOOM_MIN (14 * ZOOM_SCALE)
+#define ZOOM_MAX (18 * ZOOM_SCALE)
+
+#define ARROW_SIZE 40
+#define ARROW_ROW_BYTES 5
+#define ARROW_BYTES (ARROW_ROW_BYTES * ARROW_SIZE)

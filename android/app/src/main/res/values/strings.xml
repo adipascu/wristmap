@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Maps Navigation</string>
+    <string name="intro">Mirrors Google Maps walking and cycling directions to your Pebble, with a small map of where you are and where the next turn is. Start directions in Google Maps and the watchapp opens by itself.</string>
+    <string name="setup_title">Setup</string>
+    <string name="notification_access_granted">Notification access: granted</string>
+    <string name="notification_access_missing">Notification access: needed to read the Google Maps directions</string>
+    <string name="grant_notification_access">Open notification access settings</string>
+    <string name="location_granted">Location: granted</string>
+    <string name="location_missing">Location: needed to draw the map around you</string>
+    <string name="grant_location">Grant location</string>
+    <string name="background_location_granted">Background location: allowed all the time</string>
+    <string name="background_location_missing">Background location: needed because directions start while Google Maps is in front, not this app</string>
+    <string name="grant_background_location">Allow location all the time</string>
+    <string name="pebble_app_found">Pebble app: %1$s</string>
+    <string name="pebble_app_missing">Pebble app: not installed</string>
+    <string name="haptic_cues">Vibrate turns in Morse code</string>
+    <string name="haptic_cues_hint">L left, R right, S straight, U U-turn, O roundabout, D destination, M merge, X exit. A short E before the letter means slight, a long T means sharp. Played on each new instruction and again 40 m before the turn.</string>
+    <string name="keep_backlight_on">Keep the backlight on while cycling</string>
+    <string name="keep_backlight_on_hint">Once you have been moving at cycling speed (about 13 km/h) for ten seconds, the watch backlight stays on for as long as the watch faces up, so the map is readable on the handlebars. Turn the watch face down to let it go dark. Uses more battery.</string>
+    <string name="status_title">Status</string>
+    <string name="listener_connected">Listening for Google Maps directions.</string>
+    <string name="listener_waiting">Notification listener not connected yet.</string>
+    <string name="navigating">Navigating</string>
+    <string name="idle">No navigation running.</string>
+    <string name="raw_lines">Notification text:</string>
+    <string name="preview_title">Last frame sent to the watch</string>
+    <string name="preview_empty">No frame yet</string>
+    <string name="send_demo">Send demo to watch</string>
+    <string name="stop_demo">Stop demo</string>
+    <string name="attribution">Map data © OpenStreetMap contributors, tiles by OpenFreeMap © OpenMapTiles.</string>
+    <string name="channel_name">Navigation mirroring</string>
+    <string name="service_title">Mirroring directions to your Pebble</string>
+    <string name="service_text">Google Maps directions and a map are sent to your Pebble</string>
+</resources>

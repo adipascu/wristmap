@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 1f1e8bf348ff38fc88619a38d3ca4d9c56abea49
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 34b241d706d24e4ccb69e38f9f0fa190b5f486ec
+    hooks:
+      - id: clang-format
+        types_or: [c]
+  - repo: https://github.com/rhysd/actionlint
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca
+    hooks:
+      - id: actionlint
+  - repo: local
+    hooks:
+      - id: ktlint
+        name: ktlint
+        entry: android/gradlew -p android -q ktlintCheck
+        language: system
+        files: ^android/.*\.(kt|kts)$
+        pass_filenames: false
+      - id: android-unit-tests
+        name: android unit tests
+        entry: android/gradlew -p android -q testDebugUnitTest koverVerifyDebug
+        language: system
+        files: ^android/
+        pass_filenames: false
