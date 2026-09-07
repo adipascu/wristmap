@@ -11,6 +11,22 @@ have to turn into, and the trip summary (time left, distance left, arrival time)
 Google Maps has no public API for a running navigation. Everything comes from the ongoing
 navigation notification it posts, so this is Android only.
 
+## Screenshots
+
+<p>
+  <img src="docs/images/watch-navigating.png" alt="Watchapp during a trip: a left turn arrow, 40 m and Rue des Bouchers across the top next to the clock, a heading-up map with the blue path to the turn and the turn marker on it, and 14 min, 2.1 km and an arrival time of 2:47 along the bottom" width="200">
+  <img src="docs/images/watch-idle.png" alt="Watchapp waiting for a trip: the clock, the name Maps Navigation and a line asking you to start walking or cycling directions in Google Maps" width="200">
+</p>
+
+The watchapp during a trip and while it waits for one, at the native 200 by 228 of the Pebble
+Time 2. Both come from the emery emulator driven by the companion's demo, so the map is a real
+render of the streets around the Grand-Place in Brussels.
+
+<img src="docs/images/companion.png" alt="Companion app on Android showing the setup checklist with every permission granted, the Morse code and backlight settings, and the status section" width="388">
+
+The companion on the phone. It lists what the setup needs, carries the two settings and says
+what it is doing.
+
 ## Name
 
 The product is called Maps Navigation for Pebble in the store and in headings. Everywhere else a
