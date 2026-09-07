@@ -22,11 +22,11 @@ val releaseStoreFile = signingValue("storeFile", "KEYSTORE_FILE")
 val hasReleaseKeystore = releaseStoreFile != null && rootProject.file(releaseStoreFile).exists()
 
 android {
-    namespace = "be.pascu.wristmap"
+    namespace = "be.pascu.mapsforpebble"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "be.pascu.wristmap"
+        applicationId = "be.pascu.mapsforpebble"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -72,17 +72,17 @@ kover {
         filters {
             excludes {
                 classes(
-                    "be.pascu.wristmap.MainActivity*",
-                    "be.pascu.wristmap.WristmapApp",
-                    "be.pascu.wristmap.Navigator*",
-                    "be.pascu.wristmap.Preferences",
-                    "be.pascu.wristmap.service.*",
-                    "be.pascu.wristmap.pebble.WatchLink*",
-                    "be.pascu.wristmap.pebble.WatchListenerService",
-                    "be.pascu.wristmap.map.MapRenderer*",
-                    "be.pascu.wristmap.map.TileStore*",
-                    "be.pascu.wristmap.nav.GoogleMapsNotification*",
-                    "be.pascu.wristmap.nav.NotificationRead*",
+                    "be.pascu.mapsforpebble.MainActivity*",
+                    "be.pascu.mapsforpebble.MapsForPebbleApp",
+                    "be.pascu.mapsforpebble.Navigator*",
+                    "be.pascu.mapsforpebble.Preferences",
+                    "be.pascu.mapsforpebble.service.*",
+                    "be.pascu.mapsforpebble.pebble.WatchLink*",
+                    "be.pascu.mapsforpebble.pebble.WatchListenerService",
+                    "be.pascu.mapsforpebble.map.MapRenderer*",
+                    "be.pascu.mapsforpebble.map.TileStore*",
+                    "be.pascu.mapsforpebble.nav.GoogleMapsNotification*",
+                    "be.pascu.mapsforpebble.nav.NotificationRead*",
                 )
             }
         }

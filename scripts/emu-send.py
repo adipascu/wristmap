@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Drive the Wristmap watchapp in the Pebble emulator without a phone.
+"""Drive the Maps Navigation watchapp in the Pebble emulator without a phone.
 
 Run with pebble-tool's Python so libpebble2 and pebble_tool are importable:
   ~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --demo

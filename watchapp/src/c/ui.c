@@ -62,7 +62,7 @@ static void draw_idle(GContext *ctx, GRect bounds) {
   draw_text(ctx, now, FONT_KEY_BITHAM_42_BOLD, clock, GTextAlignmentCenter);
   GRect title =
       GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 - 20, bounds.size.w - 16, 36);
-  draw_text(ctx, "Wristmap", FONT_KEY_GOTHIC_28_BOLD, title, GTextAlignmentCenter);
+  draw_text(ctx, "Maps Navigation", FONT_KEY_GOTHIC_24_BOLD, title, GTextAlignmentCenter);
   GRect hint =
       GRect(bounds.origin.x + 8, bounds.origin.y + bounds.size.h / 2 + 16, bounds.size.w - 16, 80);
   draw_text(ctx, "Start walking or cycling directions in Google Maps", FONT_KEY_GOTHIC_18, hint,

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Wristmap</string>
+    <string name="app_name">Maps Navigation</string>
     <string name="intro">Mirrors Google Maps walking and cycling directions to your Pebble, with a small map of where you are and where the next turn is. Start directions in Google Maps and the watchapp opens by itself.</string>
     <string name="setup_title">Setup</string>
     <string name="notification_access_granted">Notification access: granted</string>
@@ -10,7 +10,7 @@
     <string name="location_missing">Location: needed to draw the map around you</string>
     <string name="grant_location">Grant location</string>
     <string name="background_location_granted">Background location: allowed all the time</string>
-    <string name="background_location_missing">Background location: needed because directions start while Google Maps is in front, not Wristmap</string>
+    <string name="background_location_missing">Background location: needed because directions start while Google Maps is in front, not this app</string>
     <string name="grant_background_location">Allow location all the time</string>
     <string name="pebble_app_found">Pebble app: %1$s</string>
     <string name="pebble_app_missing">Pebble app: not installed</string>
@@ -28,6 +28,6 @@
     <string name="stop_demo">Stop demo</string>
     <string name="attribution">Map data © OpenStreetMap contributors, tiles by OpenFreeMap © OpenMapTiles.</string>
     <string name="channel_name">Navigation mirroring</string>
-    <string name="service_title">Wristmap is mirroring directions</string>
+    <string name="service_title">Mirroring directions to your Pebble</string>
     <string name="service_text">Google Maps directions and a map are sent to your Pebble</string>
 </resources>

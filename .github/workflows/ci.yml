@@ -79,7 +79,7 @@ jobs:
         run: ./gradlew assembleDebug assembleRelease testDebugUnitTest koverVerifyDebug koverHtmlReportDebug --no-daemon
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: wristmap-apk
+          name: maps-for-pebble-apk
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app/build/outputs/apk/release/app-release.apk
@@ -114,7 +114,7 @@ jobs:
         run: pebble build
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: wristmap-pbw
+          name: maps-for-pebble-pbw
           path: watchapp/build/*.pbw
           if-no-files-found: error
 
@@ -126,13 +126,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
-          pattern: wristmap-*
+          pattern: maps-for-pebble-*
       - name: Record sizes
         run: |
           {
             echo "| Artifact | Bytes |"
             echo "|----------|------:|"
-            for f in wristmap-apk/*/app-debug.apk wristmap-apk/*/app-release.apk wristmap-pbw/*.pbw; do
+            for f in maps-for-pebble-apk/*/app-debug.apk maps-for-pebble-apk/*/app-release.apk maps-for-pebble-pbw/*.pbw; do
               size=$(stat -c %s "$f")
               printf '| %s | %s |\n' "$(basename "$f")" "$size"
             done

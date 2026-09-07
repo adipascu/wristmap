@@ -63,8 +63,8 @@ jobs:
       - name: Collect artifacts
         run: |
           mkdir -p dist
-          cp android/app/build/outputs/apk/release/app-release.apk dist/wristmap.apk
-          cp watchapp/build/watchapp.pbw dist/wristmap.pbw
+          cp android/app/build/outputs/apk/release/app-release.apk dist/maps-for-pebble.apk
+          cp watchapp/build/watchapp.pbw dist/maps-for-pebble.pbw
           (cd dist && sha256sum ./* > SHA256SUMS.txt)
       - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64
         with:
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-pbw
-          path: dist/wristmap.pbw
+          path: dist/maps-for-pebble.pbw
           if-no-files-found: error
 
   publish:
@@ -97,9 +97,9 @@ jobs:
             exit 0
           fi
           notes="$(git tag -l --format='%(contents:body)' "${GITHUB_REF_NAME}")"
-          [ -n "${notes}" ] || notes="Wristmap ${GITHUB_REF_NAME}"
+          [ -n "${notes}" ] || notes="Maps Navigation for Pebble ${GITHUB_REF_NAME}"
           curl --fail-with-body --silent --show-error \
             -X POST "https://appstore-api.rebble.io/api/dp/app/${REBBLE_APP_ID}/release" \
             -H "Authorization: Bearer ${REBBLE_ACCESS_TOKEN}" \
             -F "release_notes=${notes}" \
-            -F "pbw=@wristmap.pbw"
+            -F "pbw=@maps-for-pebble.pbw"

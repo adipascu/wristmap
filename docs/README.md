@@ -1,4 +1,4 @@
-# Wristmap documentation
+# Maps Navigation for Pebble documentation
 
 - [What you need and how to set it up](setup.md)
 - [How it works](how-it-works.md)

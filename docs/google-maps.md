@@ -1,7 +1,7 @@
 # How Google Maps is read
 
 There is no API. Google Maps posts an ongoing notification while it navigates (id 1, category
-navigation, ongoing) and updates it on every change of distance or instruction. Wristmap is a
+navigation, ongoing) and updates it on every change of distance or instruction. Maps Navigation is a
 `NotificationListenerService`, which is the Android mechanism apps such as smartwatch
 companions use to see notifications. Android requires the user to grant it explicitly.
 
@@ -10,7 +10,7 @@ companions use to see notifications. Android requires the user to grant it expli
 `GoogleMapsNotification.read` gathers text from two places and the icon from one:
 
 1. The notification extras (`EXTRA_TITLE`, `EXTRA_TEXT`, `EXTRA_BIG_TEXT` and friends).
-2. The notification's custom layout. Google Maps uses `RemoteViews`. Wristmap recovers the
+2. The notification's custom layout. Google Maps uses `RemoteViews`. Maps Navigation recovers the
    builder, inflates the big content view in Google Maps' own resource context, reapplies the
    remote views, and walks the resulting view tree collecting every `TextView`'s text. The
    `ImageView` named `nav_notification_icon` (or `right_icon`, or the lock screen variant)
@@ -58,7 +58,7 @@ Exit navigation
 ## What Google Maps does not give
 
 - The route. The turn position on the map is an estimate along the road network.
-- The mode (walking, cycling, driving). Wristmap does not care, it mirrors whatever is
+- The mode (walking, cycling, driving). Maps Navigation does not care, it mirrors whatever is
   navigating. Cycling only differs in the zoom cap above 4 m/s.
 - Lane guidance and the full step list.
 - Anything on iOS. Notifications are sandboxed there, so this stays Android only.
