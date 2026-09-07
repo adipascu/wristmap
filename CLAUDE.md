@@ -17,6 +17,7 @@ Every version is pinned and asserted where it can be. Change a pin in one place 
 | Pebble SDK | 4.33.1 | `PEBBLE_SDK_VERSION` in `.github/workflows/ci.yml` |
 | pre-commit | 4.6.2 | the `check` CI job, hook revisions pinned to commits in `.pre-commit-config.yaml` |
 | GitHub Actions | full commit SHAs | every `uses:`, kept current by dependabot |
+| gitleaks | 8.30.1 | `GITLEAKS_VERSION` and its tarball checksum in the `secrets` job of `.github/workflows/ci.yml` |
 
 # Code
 
