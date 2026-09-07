@@ -356,5 +356,11 @@ in order, typos included.
 34. is this easy to pronounce and spel in all cultures?
 35. do peblum if free, resume
 
-35 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
+36. /mr-new /mr-polish and mege it in, add a setting that is enabled by default to make the backlight stay on while in this app when the watch is not upside down , ofc reword this setting to follow best practices
+
+    (and make this only apply for when doing bicycle navigation)
+37. make sure last version is installed
+38. Finish the ideas behind all open MRs, do /mr-polish on them and merge them in, see this session for any contextmake sure to do all the features I asked you as well, via /mr-new /mr-polish and merge it inAt the end make sure latest app is installed on my watch
+
+38 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
 written or edited by a human. One address in prompt 12 is masked.
