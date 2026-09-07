@@ -4,8 +4,10 @@
 #include "nav_state.h"
 
 #define TOP_BAR_HEIGHT 58
-#define BOTTOM_BAR_HEIGHT 18
+#define BOTTOM_BAR_HEIGHT 22
 #define ARROW_BOX 54
+#define ETA_LABEL "ETA"
+#define ETA_GAP 3
 #define MARKER_FRACTION_PERCENT 70
 #define CLOCK_WIDTH_24H 52
 #define CLOCK_WIDTH_12H 72
@@ -29,6 +31,13 @@ static void draw_text(GContext *ctx, const char *text, const char *font_key, GRe
                      GTextOverflowModeTrailingEllipsis, alignment, NULL);
 }
 
+static int text_width(const char *text, const char *font_key, int height) {
+  GSize size = graphics_text_layout_get_content_size(text, fonts_get_system_font(font_key),
+                                                     GRect(0, 0, 200, height),
+                                                     GTextOverflowModeWordWrap, GTextAlignmentLeft);
+  return size.w;
+}
+
 static void draw_maneuver(GContext *ctx, GRect box, const NavState *state, int scale) {
   if (state->has_arrow) {
     arrows_draw_packed(ctx, box, state->arrow, scale, GColorBlack);
@@ -39,8 +48,8 @@ static void draw_maneuver(GContext *ctx, GRect box, const NavState *state, int s
 
 static void build_trip_line(const NavState *state, char *out, size_t capacity) {
   out[0] = '\0';
-  const char *parts[3] = {state->time_remain, state->dist_remain, state->eta};
-  for (int i = 0; i < 3; i++) {
+  const char *parts[2] = {state->time_remain, state->dist_remain};
+  for (int i = 0; i < 2; i++) {
     if (!parts[i][0]) {
       continue;
     }
@@ -98,11 +107,30 @@ static void draw_top_bar(GContext *ctx, GRect bounds, const NavState *state) {
 }
 
 static void draw_bottom_bar(GContext *ctx, GRect bounds, const NavState *state) {
-  char trip[NAV_TEXT_LEN * 3];
+  int top = bounds.origin.y + bounds.size.h - BOTTOM_BAR_HEIGHT;
+  graphics_context_set_stroke_color(ctx, GColorBlack);
+  graphics_context_set_stroke_width(ctx, 1);
+  graphics_draw_line(ctx, GPoint(bounds.origin.x, top),
+                     GPoint(bounds.origin.x + bounds.size.w, top));
+
+  int right = bounds.origin.x + bounds.size.w - 2;
+  int eta_span = 0;
+  if (state->eta[0]) {
+    int time_w = text_width(state->eta, FONT_KEY_GOTHIC_18_BOLD, BOTTOM_BAR_HEIGHT);
+    int label_w = text_width(ETA_LABEL, FONT_KEY_GOTHIC_14, BOTTOM_BAR_HEIGHT);
+    draw_text(ctx, state->eta, FONT_KEY_GOTHIC_18_BOLD,
+              GRect(right - time_w, top - 2, time_w, BOTTOM_BAR_HEIGHT), GTextAlignmentRight);
+    draw_text(ctx, ETA_LABEL, FONT_KEY_GOTHIC_14,
+              GRect(right - time_w - ETA_GAP - label_w, top + 2, label_w, BOTTOM_BAR_HEIGHT),
+              GTextAlignmentRight);
+    eta_span = label_w + ETA_GAP + time_w + 6;
+  }
+
+  char trip[NAV_TEXT_LEN * 2 + 4];
   build_trip_line(state, trip, sizeof(trip));
-  GRect frame = GRect(bounds.origin.x, bounds.origin.y + bounds.size.h - BOTTOM_BAR_HEIGHT - 2,
-                      bounds.size.w, BOTTOM_BAR_HEIGHT + 2);
-  draw_text(ctx, trip, FONT_KEY_GOTHIC_14_BOLD, frame, GTextAlignmentCenter);
+  draw_text(ctx, trip, FONT_KEY_GOTHIC_14_BOLD,
+            GRect(bounds.origin.x + 2, top + 2, bounds.size.w - 4 - eta_span, BOTTOM_BAR_HEIGHT),
+            GTextAlignmentLeft);
 }
 
 static void draw_map(GContext *ctx, GRect area, int32_t scale_256, GPoint anchor) {

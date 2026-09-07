@@ -86,8 +86,8 @@ so cycling gets a wider view. A swipe on the watch overrides it for the rest of 
   the zoom reacts before the phone has rendered anything.
 - `main.c` subscribes to the raw touch stream (zoom and backlight), the minute tick (clock)
   and AppMessage, and sends the hello and the zoom level.
-- `ui.c` draws the three bands: arrow, distance, street and clock on top, the map, and the trip
-  summary at the bottom.
+- `ui.c` draws the three bands: arrow, distance, street and clock on top, the map, and at the
+  bottom the time and distance left on the left with the arrival time on the right.
 - `haptics.c` plays a received vibration pattern.
 - `arrows.c` draws the vector fallback arrows when no icon was captured.
 
