@@ -13,12 +13,12 @@ navigation notification it posts, so this is Android only.
 
 ## Name
 
-The product is called Maps Navigation for Pebble in the store, in the docs and in every string a
-user reads. The watch launcher and the phone show the short form, Maps Navigation. Everything a
-user never reads uses the code name Maps for Pebble: the repository `tockstone/maps-for-pebble`,
-the Android package `be.pascu.mapsforpebble`, the class prefix `MapsForPebble`, the release
-assets `maps-for-pebble.pbw` and `maps-for-pebble.apk`. The two are kept apart so the display
-name can change without touching an identifier.
+The product is called Maps Navigation for Pebble in the store and in headings. Everywhere else a
+user sees it, on the watch, on the phone and in running prose, it is Maps Navigation.
+Identifiers use the code name Maps for Pebble: the repository `tockstone/maps-for-pebble`, the
+Android package `be.pascu.mapsforpebble`, the class and Gradle project name `MapsForPebble`,
+the release assets `maps-for-pebble.pbw` and `maps-for-pebble.apk`. The two are kept apart so
+the display name can change without touching an identifier.
 
 ## How it works
 
@@ -59,7 +59,9 @@ Two parts: the watchapp on the watch and the companion on the phone.
 
 1. **Watchapp**: open `maps-for-pebble.pbw` from the latest release in the Pebble app, or build it
    (see below) and sideload it.
-2. **Companion**: install `maps-for-pebble.apk` from the latest release. Open it once and grant
+2. **Companion**: install `maps-for-pebble.apk` from the latest release. If the earlier Wristmap
+   build is on the phone, uninstall it first, since it is a separate package and both would
+   mirror the same directions. Open the new app once and grant
    notification access, location, and location "all the time". The last one matters: directions
    start while Google Maps is in front, so the companion's location service starts from the
    background, and Android only feeds GPS to such a service when background location is allowed.

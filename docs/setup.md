@@ -18,14 +18,15 @@ on the phone beyond the permissions below.
 1. **Watchapp**: open `maps-for-pebble.pbw` from the latest GitHub release in the Pebble app. The app
    asks to install it on the connected watch.
 2. **Companion**: install `maps-for-pebble.apk` from the same release. Android warns about an app
-   from outside the Play Store, allow it.
+   from outside the Play Store, allow it. If the earlier Wristmap build is on the phone, uninstall
+   it first. It is a separate package and both would mirror the same directions.
 3. Open Maps Navigation once. The setup section lists the three permissions below, with a button for
    each that is still missing, and whether a Pebble app is installed:
-   - **Notification access**. Android sends every notification to Maps Navigation. Maps Navigation only
+   - **Notification access**. Android sends every notification to Maps Navigation, which only
      acts on the one Google Maps posts while navigating and ignores the rest.
    - **Location**. Needed to draw the map around you and to estimate where the turn is.
    - **Location all the time**. Directions start while Google Maps is in front, not Maps Navigation,
-     so Maps Navigation's location service starts from the background. Android only gives GPS to
+     so the companion's location service starts from the background. Android only gives GPS to
      such a service when background location is allowed. Without it the map shows
      "Waiting for GPS" whenever Maps Navigation itself is not in front, which is the whole trip in
      practice.

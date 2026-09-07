@@ -20,7 +20,7 @@ Every version is pinned and asserted where it can be. Change a pin in one place 
 
 # Code
 
-- The user-facing name is Maps Navigation for Pebble, shown as Maps Navigation on the watch launcher and the phone. Identifiers, packages, artifact names and the repository use the code name Maps for Pebble (`maps-for-pebble`, `be.pascu.mapsforpebble`, `MapsForPebble`). Never put the display name in an identifier or the code name in a string a user reads.
+- The user-facing name is Maps Navigation for Pebble, shown as Maps Navigation on the watch and the phone. Identifiers, packages, artifact names and the repository use the code name Maps for Pebble (`maps-for-pebble`, `be.pascu.mapsforpebble`, `MapsForPebble`). Never put the display name in an identifier or the code name in a string a user reads.
 - No comments. Names, tests and the merge request description carry the reasoning. The one exception is a workaround for a specific external bug, stated in one line.
 - No em dashes and no semicolons in prose (README, docs, strings, workflow names, merge requests). Sentence case headings.
 - Kotlin is formatted by ktlint in the `ktlint_official` style with 140 columns, C by clang-format from `.clang-format`, Python by ruff from `ruff.toml`. The pre-commit hook and the `check` job run all of them, plus actionlint on the workflows.

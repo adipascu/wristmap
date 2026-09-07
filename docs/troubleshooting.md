@@ -10,7 +10,7 @@ and the last frame. Read it first.
 | "nav: companion not allowed by watchapp" | The watchapp on the watch is an older build without the companion package in its `companionApp` list. | Reinstall the current `maps-for-pebble.pbw`. |
 | "nav: watchapp not open" | The watchapp is closed and the message was not one that relaunches it. | Open Maps Navigation on the watch, or wait for the next instruction, which relaunches it. |
 | "nav: no watch connected" | The Pebble app has no connected watch. | Check the Pebble app. |
-| "Waiting for GPS" on the watch | Location was not granted, or only "while using", so the service started from the background gets no fixes. | Grant location and "location all the time" in Maps Navigation's setup section. |
+| "Waiting for GPS" on the watch | Location was not granted, or only "while using", so the service started from the background gets no fixes. | Grant location and "location all the time" in the companion's setup section. |
 | "No map data" on the watch | No tiles cached for this area and no connection, or the tile server unreachable. | Wait for connectivity. The status line shows how many tiles the last frame used. |
 | Map does not react to swipes | The watch runs an older watchapp, or touch is disabled system-wide on the watch. | Reinstall `maps-for-pebble.pbw`. |
 | Watch does not open when directions start | Notification access is not granted, or Google Maps' notification was not recognised. | Check the setup section, then the "Notification text" line in the status once navigating. |
