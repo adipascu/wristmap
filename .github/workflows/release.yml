@@ -4,21 +4,27 @@ on:
   push:
     tags: ["v*"]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
         with:
           distribution: temurin
           java-version: "21"
-      - uses: android-actions/setup-android@v3
-      - name: Install platform 37
+      - name: Assert the Java major version
+        run: java -version 2>&1 | grep -q 'version "21\.' || { java -version; exit 1; }
+      - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699
+      - name: Install the Android platform
         run: yes | sdkmanager "platforms;android-37.0" >/dev/null
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
       - name: Restore keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -33,20 +39,22 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease testDebugUnitTest --no-daemon
-      - uses: actions/setup-node@v4
+        run: ./gradlew assembleRelease testDebugUnitTest koverVerifyDebug --no-daemon
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "22"
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d
+        with:
+          enable-cache: false
       - name: Install pebble-tool
         run: |
           sudo apt-get update && sudo apt-get install -y libpng-dev
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          "$HOME/.local/bin/uv" tool install pebble-tool --python 3.13
+          uv tool install "pebble-tool==5.0.40" --python 3.13
+          pebble --version | grep -q "5.0.40" || { pebble --version; exit 1; }
       - name: Build watchapp
         working-directory: watchapp
         run: |
-          pebble sdk install latest || true
+          pebble sdk install 4.33.1
           pebble build
       - name: Collect artifacts
         run: |
@@ -54,6 +62,6 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release.apk dist/wristmap.apk
           cp watchapp/build/watchapp.pbw dist/wristmap.pbw
           (cd dist && sha256sum ./* > SHA256SUMS.txt)
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64
         with:
           files: dist/*
