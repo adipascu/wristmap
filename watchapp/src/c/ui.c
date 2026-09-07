@@ -119,7 +119,7 @@ static void draw_bottom_bar(GContext *ctx, GRect bounds, const NavState *state) 
     int time_w = text_width(state->eta, FONT_KEY_GOTHIC_18_BOLD, BOTTOM_BAR_HEIGHT);
     int label_w = text_width(ETA_LABEL, FONT_KEY_GOTHIC_14, BOTTOM_BAR_HEIGHT);
     draw_text(ctx, state->eta, FONT_KEY_GOTHIC_18_BOLD,
-              GRect(right - time_w, top - 1, time_w, BOTTOM_BAR_HEIGHT), GTextAlignmentRight);
+              GRect(right - time_w, top - 2, time_w, BOTTOM_BAR_HEIGHT), GTextAlignmentRight);
     draw_text(ctx, ETA_LABEL, FONT_KEY_GOTHIC_14,
               GRect(right - time_w - ETA_GAP - label_w, top + 2, label_w, BOTTOM_BAR_HEIGHT),
               GTextAlignmentRight);

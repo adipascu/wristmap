@@ -136,7 +136,7 @@ class WatchLink(
     companion object {
         const val DEFAULT_INBOX_MAX = 2044
         const val DEFAULT_MAP_WIDTH = 200
-        const val DEFAULT_MAP_HEIGHT = 152
+        const val DEFAULT_MAP_HEIGHT = 148
         private const val CHUNK_OVERHEAD = 96
         private const val MIN_CHUNK = 200
         private const val MAX_CHUNK = 8000
