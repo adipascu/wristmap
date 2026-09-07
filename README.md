@@ -1,4 +1,4 @@
-# Wristmap
+# Maps Navigation for Pebble
 
 Google Maps walking and cycling directions on a Pebble Time 2, with a small map that shows
 where you are and where the next turn is.
@@ -11,6 +11,15 @@ have to turn into, and the trip summary (time left, distance left, arrival time)
 Google Maps has no public API for a running navigation. Everything comes from the ongoing
 navigation notification it posts, so this is Android only.
 
+## Name
+
+The product is called Maps Navigation for Pebble in the store, in the docs and in every string a
+user reads. The watch launcher and the phone show the short form, Maps Navigation. Everything a
+user never reads uses the code name Maps for Pebble: the repository `tockstone/maps-for-pebble`,
+the Android package `be.pascu.mapsforpebble`, the class prefix `MapsForPebble`, the release
+assets `maps-for-pebble.pbw` and `maps-for-pebble.apk`. The two are kept apart so the display
+name can change without touching an identifier.
+
 ## How it works
 
 ```
@@ -18,7 +27,7 @@ Google Maps (phone)
   posts the ongoing navigation notification (text plus a maneuver icon)
         │
         ▼
-Wristmap companion (Android, this repo)
+Maps Navigation companion (Android, this repo)
   NotificationListenerService reads the text and the icon
   LocationManager gives position, speed and bearing
   OpenFreeMap vector tiles (OpenStreetMap data, zoom 14) are decoded on the phone
@@ -27,7 +36,7 @@ Wristmap companion (Android, this repo)
   MapRenderer draws a 4 colour, heading-up map on a Canvas and packs it as 2 bits per pixel
         │  PebbleKit Android 2 AppMessages (one 8 KB message per chunk)
         ▼
-Wristmap watchapp (C, this repo)
+Maps Navigation watchapp (C, this repo)
   top bar: arrow, distance, street
   map: the phone-rendered bitmap in a palettised GBitmap
   bottom bar: time left, distance left, arrival time
@@ -48,11 +57,11 @@ overrides it for the rest of the trip.
 
 Two parts: the watchapp on the watch and the companion on the phone.
 
-1. **Watchapp**: open `wristmap.pbw` from the latest release in the Pebble app, or build it
+1. **Watchapp**: open `maps-for-pebble.pbw` from the latest release in the Pebble app, or build it
    (see below) and sideload it.
-2. **Companion**: install `wristmap.apk` from the latest release. Open it once and grant
+2. **Companion**: install `maps-for-pebble.apk` from the latest release. Open it once and grant
    notification access, location, and location "all the time". The last one matters: directions
-   start while Google Maps is in front, so Wristmap's location service starts from the
+   start while Google Maps is in front, so the companion's location service starts from the
    background, and Android only feeds GPS to such a service when background location is allowed.
    The app lists what is still missing.
 3. Start walking or cycling directions in Google Maps. The watchapp pops up on its own.
@@ -128,7 +137,7 @@ pre-commit install
 
 `scripts/emu-send.py` drives the watchapp in the emulator without a phone: it sends a demo
 navigation state, a synthetic test pattern, or a frame the companion wrote to its cache
-directory (`last-frame.wmf`, pull it with `adb shell run-as be.pascu.wristmap cat cache/last-frame.wmf`).
+directory (`last-frame.wmf`, pull it with `adb shell run-as be.pascu.mapsforpebble cat cache/last-frame.wmf`).
 
 ```
 ~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --launch --demo --pattern
@@ -144,7 +153,7 @@ pattern at the size the watch announced. Without it `--pattern` assumes the emer
 
 Bump `version` in `watchapp/package.json`, tag the commit `vX.Y.Z` with the release notes as
 the tag message, and push the tag. The release workflow checks that the tag matches the
-watchapp version, builds both halves, attaches `wristmap.apk`, `wristmap.pbw` and checksums to
+watchapp version, builds both halves, attaches `maps-for-pebble.apk`, `maps-for-pebble.pbw` and checksums to
 a GitHub release, and then uploads the `.pbw` as a new release of the appstore listing through
 the Rebble developer portal API. Two repository settings drive the last step and the job skips
 with a warning while they are missing:
@@ -162,7 +171,7 @@ the tag check enforces on the repository side.
 
 Both sides use raw integer AppMessage keys, defined in `watchapp/src/c/protocol.h` and
 `android/.../pebble/Protocol.kt`. The watchapp UUID is `58b9be94-3f7b-4338-94e5-90890b2ab7a0`
-and the companion package `be.pascu.wristmap` is whitelisted in `watchapp/package.json`.
+and the companion package `be.pascu.mapsforpebble` is whitelisted in `watchapp/package.json`.
 
 Phone to watch:
 
@@ -281,6 +290,34 @@ in order, typos included.
 13. Continue from where you left off.
 14. resume
 15. /mr-new /mr-polish and merge, make the clock larger and make it show near the top, it should be easily readable and mixed in nicely with the nav data
+16. I don't like the current app name, lets pause to do a brainstorming session to find the best name
 
-15 prompts. 0 multiple-choice answers. 0 lines of code written or edited by a human. One
-address in prompt 12 is masked.
+    after this resume things as usual
+
+    When he decided on the new name, do /mr-new and /mr-polish to swap into the first name, make sure to publish under the new name.
+
+    Let's brainstorm
+
+    Give me options, I want something that is easy to pronounce, easy to spell, relatively short and won't break treadmarks / copyrights (won't get us sued)
+17. give me more options first, let's talk over chat and decide there
+18. use the bitwarden skill to unlock it now in case you need it later
+
+    also make sure the project lives under my pebble fork org.
+
+    Since we mix two products, I want to try to use their names as much as possible
+
+    like "X for Y" or something like that
+
+    still make it in a way that we won't get sued
+19. Only keep for Pebble options
+20. also prefer some name that will SEO well in general on google and also on the pebble app store
+21. go ahead with Maps Navigation for Pebble
+
+    Yet internally just call it Maps for Pebble (for any internal code names, repo name etc), it is very likely in the future we will rename it to just Maps for Pebble, so use that for any immutable places like app id string etc.
+
+    Resume work now.
+
+    Do as many /mr-new and /mr-polish and merges as needed to reach all our goals.
+
+21 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
+written or edited by a human. One address in prompt 12 is masked.

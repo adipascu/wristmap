@@ -2,7 +2,7 @@
 
 Google Maps has no API for a running navigation. The only thing it exposes is the ongoing
 notification it posts while navigating, which carries the next instruction as text and the
-manoeuvre icon. Everything else Wristmap shows is built on the phone from that notification,
+manoeuvre icon. Everything else Maps Navigation shows is built on the phone from that notification,
 the phone's GPS and OpenStreetMap data, and pushed to the watch as a bitmap.
 
 ```
@@ -22,12 +22,12 @@ NavigationService ──GPS fix──▶     Navigator  ◀── WatchListenerS
                                       ▼
                               Pebble app (Bluetooth)
                                       ▼
-                         Wristmap watchapp on the Pebble Time 2
+                         Maps Navigation watchapp on the Pebble Time 2
 ```
 
 ## The companion, piece by piece
 
-All of it lives in `android/app/src/main/java/be/pascu/wristmap`.
+All of it lives in `android/app/src/main/java/be/pascu/mapsforpebble`.
 
 **`Navigator`** is the process-wide coordinator. Every external event (a Maps notification
 posted or removed, the location service starting, stopping or failing) is queued into one

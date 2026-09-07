@@ -1,2 +1,2 @@
--keep class be.pascu.wristmap.pebble.WatchListenerService { *; }
--keep class be.pascu.wristmap.service.** { *; }
+-keep class be.pascu.mapsforpebble.pebble.WatchListenerService { *; }
+-keep class be.pascu.mapsforpebble.service.** { *; }

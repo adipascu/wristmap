@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Wristmap"
+rootProject.name = "MapsForPebble"
 include(":app")
