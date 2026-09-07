@@ -321,5 +321,40 @@ in order, typos included.
 
     Do as many /mr-new and /mr-polish and merges as needed to reach all our goals.
 
-21 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
+22. /mr-new /mr-polish show the estimated time of arrival somehwre as well. Make sure it fits in with the general design of the UI.
+
+    Show screenshots of the before and after version of any UI change MRs in the MR description.
+
+    Merge this MR when ready
+23. rename tockstone to a mix of rebble and pebble and chromium.
+
+    I mean the org that these sit in on gh
+
+    Let's brainstorm the names first
+24. cleanup a bit my chrome tabs, close all duplicates of the same link
+
+    Close all linkedin ones, close all gogel claendar ones in general
+
+    Close any gitlab ones as well
+
+    Close any meetup ones
+
+    close any latindance.be ones
+25. make sure to clean up after youreself, uninstall any global stuff you might hacve installed, close any unused emualtors and tabs might've opened
+26. where si the brainstorming session?
+27. Keep only easy to pronounce and spell options
+28. avoid double letters
+29. Do Rebrium
+30. Rename the fork that lives under iut as well via /mr-new /mr-polish and merging in te changes
+
+    Repeat as many MRs as needed.
+
+    resume work on the rest
+31. wait, maybe make it easy to pronounce and spell for people that roll their R'sI feel the name can still be improved
+32. What about peblium?
+33. I want it to sound like a chemical element
+34. is this easy to pronounce and spel in all cultures?
+35. do peblum if free, resume
+
+35 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
 written or edited by a human. One address in prompt 12 is masked.
