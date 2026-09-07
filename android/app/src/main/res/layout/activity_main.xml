@@ -88,6 +88,20 @@
             android:text="@string/haptic_cues_hint"
             android:textSize="13sp" />
 
+        <Switch
+            android:id="@+id/keep_backlight_on"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp"
+            android:text="@string/keep_backlight_on" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/keep_backlight_on_hint"
+            android:textSize="13sp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

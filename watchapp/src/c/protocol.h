@@ -10,6 +10,7 @@
 #define KEY_DIST_REMAIN 8
 #define KEY_TIME_REMAIN 9
 #define KEY_HAPTIC_PATTERN 10
+#define KEY_KEEP_LIT 11
 
 #define KEY_MAP_WIDTH 20
 #define KEY_MAP_HEIGHT 21

@@ -31,12 +31,14 @@ typedef struct {
   char eta[NAV_TEXT_LEN];
   char dist_remain[NAV_TEXT_LEN];
   char time_remain[NAV_TEXT_LEN];
+  bool keep_lit;
 } NavState;
 
 typedef enum {
   NAV_CHANGE_NONE = 0,
   NAV_CHANGE_TEXT = 1 << 0,
   NAV_CHANGE_INSTRUCTION = 1 << 1,
+  NAV_CHANGE_BACKLIGHT = 1 << 2,
 } NavChange;
 
 const NavState *nav_state_get(void);

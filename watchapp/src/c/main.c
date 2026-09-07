@@ -10,6 +10,9 @@
 #define ZOOM_SEND_INTERVAL_MS 120
 #define ZOOM_SEND_MAX_RETRIES 5
 #define DEFAULT_ZOOM (17 * ZOOM_SCALE)
+#define TILT_SAMPLES_PER_UPDATE 5
+#define FACE_UP_BELOW_MG -150
+#define FACE_DOWN_ABOVE_MG 150
 
 static Window *s_window;
 static Layer *s_layer;
@@ -22,6 +25,9 @@ static int32_t s_zoom_target;
 static bool s_zoom_unsent;
 static uint8_t s_frames_since_liftoff;
 static uint8_t s_zoom_send_failures;
+static bool s_touch_lit;
+static bool s_face_up = true;
+static bool s_watching_tilt;
 
 static int32_t pow2_256(int32_t exponent_100) {
   int32_t whole = exponent_100 >= 0 ? exponent_100 / ZOOM_SCALE
@@ -107,12 +113,60 @@ static void forget_zoom(void) {
   }
 }
 
+static void apply_light(void) {
+  const NavState *state = nav_state_get();
+  bool keep_lit = state->active && state->keep_lit && s_face_up;
+  light_enable(keep_lit || s_touch_lit);
+}
+
 static void light_timer_fired(void *context) {
   s_light_timer = NULL;
-  light_enable(false);
+  s_touch_lit = false;
+  apply_light();
+}
+
+static void tilt_handler(AccelData *data, uint32_t samples) {
+  int32_t z = 0;
+  uint32_t still = 0;
+  for (uint32_t i = 0; i < samples; i++) {
+    if (data[i].did_vibrate) {
+      continue;
+    }
+    z += data[i].z;
+    still++;
+  }
+  if (still == 0) {
+    return;
+  }
+  z /= (int32_t)still;
+  bool face_up = s_face_up;
+  if (z < FACE_UP_BELOW_MG) {
+    face_up = true;
+  } else if (z > FACE_DOWN_ABOVE_MG) {
+    face_up = false;
+  }
+  if (face_up != s_face_up) {
+    s_face_up = face_up;
+    apply_light();
+  }
+}
+
+static void watch_tilt(bool wanted) {
+  if (wanted != s_watching_tilt) {
+    s_watching_tilt = wanted;
+    if (wanted) {
+      accel_data_service_subscribe(TILT_SAMPLES_PER_UPDATE, tilt_handler);
+      accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
+    } else {
+      accel_data_service_unsubscribe();
+      s_face_up = true;
+    }
+  }
+  apply_light();
 }
 
 static void hold_light(void) {
+  s_touch_lit = true;
   light_enable(true);
   if (s_light_timer) {
     app_timer_reschedule(s_light_timer, LIGHT_HOLD_MS);
@@ -171,6 +225,10 @@ static void inbox_received(DictionaryIterator *iter, void *context) {
       s_zoom_target = 0;
       s_frames_since_liftoff = 0;
     }
+  }
+  if (change & NAV_CHANGE_BACKLIGHT) {
+    const NavState *state = nav_state_get();
+    watch_tilt(state->active && state->keep_lit);
   }
   bool cued = haptics_apply(iter);
   if (!cued && (change & NAV_CHANGE_INSTRUCTION)) {
@@ -238,6 +296,8 @@ static void init(void) {
 static void deinit(void) {
   tick_timer_service_unsubscribe();
   touch_service_unsubscribe();
+  watch_tilt(false);
+  s_touch_lit = false;
   light_enable(false);
   window_destroy(s_window);
   map_frame_deinit();

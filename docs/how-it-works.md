@@ -85,7 +85,9 @@ so cycling gets a wider view. A swipe on the watch overrides it for the rest of 
   While the finger is down it also resamples the current frame around the position marker so
   the zoom reacts before the phone has rendered anything.
 - `main.c` subscribes to the raw touch stream (zoom and backlight), the minute tick (clock)
-  and AppMessage, and sends the hello and the zoom level.
+  and AppMessage, and sends the hello and the zoom level. While the phone asks for the
+  backlight to stay on it also samples the accelerometer at 10 Hz and keeps the light on
+  whenever the watch faces up.
 - `ui.c` draws the three bands: arrow, distance, street and clock on top, the map, and at the
   bottom the time and distance left on the left with the arrival time on the right.
 - `haptics.c` plays a received vibration pattern.

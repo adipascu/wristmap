@@ -37,12 +37,16 @@ on the phone beyond the permissions below.
 - **Vibrate turns in Morse code**: on by default. The watch taps out the manoeuvre when an
   instruction first appears and once more 40 m before the turn. Off gives one short pulse per
   new instruction instead.
+- **Keep the backlight on while cycling**: on by default. Once you have moved at cycling speed
+  (3.5 m/s for ten seconds) the backlight stays on for as long as the watch faces up. Turning
+  it face down lets it go dark. The five second touch backlight works on every trip.
 
 ## On the watch
 
 - Swipe up to zoom in, down to zoom out. The map follows the finger at once and the phone
   sends a sharper frame within a few hundred milliseconds.
-- Any touch lights the screen for five seconds.
+- Any touch lights the screen for five seconds. While cycling with the setting on, the screen
+  stays lit whenever the watch faces up.
 - Back leaves the app. The other buttons do nothing.
 - The clock is at the top right while navigating and large on the idle screen. The arrival
   time sits at the bottom right, marked ETA, next to the time and distance left.

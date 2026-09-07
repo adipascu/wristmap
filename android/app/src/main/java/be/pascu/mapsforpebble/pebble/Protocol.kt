@@ -15,6 +15,7 @@ object Protocol {
     val DIST_REMAIN = 8u
     val TIME_REMAIN = 9u
     val HAPTIC_PATTERN = 10u
+    val KEEP_LIT = 11u
 
     val MAP_WIDTH = 20u
     val MAP_HEIGHT = 21u
