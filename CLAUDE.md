@@ -32,7 +32,7 @@ Every version is pinned and asserted where it can be. Change a pin in one place 
 
 # Boundaries
 
-- The packages `nav`, `map` and `pebble` are pure JVM code apart from the named exceptions (`GoogleMapsNotification`, `MapRenderer`, `TileStore`, `WatchLink`, `WatchListenerService`). Keep Android types out of the pure classes: bit operations instead of `android.graphics.Color`, `IntArray` pixels instead of `Bitmap`, so they stay measurable. Kover's exclusion list in `android/app/build.gradle.kts` is the boundary and is gated at 100% lines and instructions and 99% branches.
+- The packages `nav`, `map` and `pebble` are pure JVM code apart from the named exceptions (`GoogleMapsNotification`, `MapRenderer`, `TileStore`, `WatchLink`, `WatchListenerService`). Keep Android types out of the pure classes: bit operations instead of `android.graphics.Color`, `IntArray` pixels instead of `Bitmap`, so they stay measurable. Kover's exclusion list in `android/app/build.gradle.kts` is the boundary and is gated at 100% lines, instructions and branches.
 - The phone and watch protocol is defined twice on purpose, in `watchapp/src/c/protocol.h` and `android/.../pebble/Protocol.kt`, with the table in `README.md` and the harness `scripts/emu-send.py` as the third and fourth copies. A protocol change touches all four in the same merge request.
 - Time comes from `System.currentTimeMillis()` on the phone and `clock_copy_time_string` on the watch. Status text is formatted with `Locale.US` so logs stay parseable.
 
