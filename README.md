@@ -94,6 +94,12 @@ is longer than 1.5 s. The cue plays when an instruction first appears and once m
 turn is 40 m away. The phone builds the pattern (`MorseCue`) and sends it with the
 instruction, the watch only plays it.
 
+With "Keep the backlight on while cycling" switched on in the phone app (on by default), the
+backlight stays on while the watch faces up once you have moved at cycling speed (3.5 m/s
+for ten seconds) during the trip, so the map is readable on the handlebars. Turning the watch
+face down lets it go dark, and the five second touch backlight works on every trip. The phone
+decides from the GPS speed, since Google Maps does not say which mode is navigating.
+
 The companion needs the Core Devices Pebble app (`coredevices.coreapp`). It is the only Android
 app that implements PebbleKit Android 2, which the companion uses to talk to the watch.
 
@@ -184,6 +190,7 @@ Phone to watch:
 | 3 | `ARROW_BITMAP` | bytes | 40x40, 1 bit per pixel, 5 bytes per row, MSB first |
 | 4..9 | `DISTANCE`, `STREET`, `INSTRUCTION`, `ETA`, `DIST_REMAIN`, `TIME_REMAIN` | cstring | display text |
 | 10 | `HAPTIC_PATTERN` | bytes | vibration segments as little-endian uint16 milliseconds, on and off alternating, starting with on, at most 32 |
+| 11 | `KEEP_LIT` | uint8 | 1 while the phone wants the backlight kept on, the watch then lights it whenever it faces up |
 | 20, 21 | `MAP_WIDTH`, `MAP_HEIGHT` | uint16 | frame size, sent with the first chunk |
 | 22 | `MAP_FRAME` | uint8 | frame id, chunks of another frame are dropped |
 | 23 | `MAP_TOTAL` | uint32 | total packed bytes |

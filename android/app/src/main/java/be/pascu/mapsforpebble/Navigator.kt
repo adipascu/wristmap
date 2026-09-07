@@ -21,6 +21,7 @@ import be.pascu.mapsforpebble.map.RoutePreview
 import be.pascu.mapsforpebble.map.TileData
 import be.pascu.mapsforpebble.map.TileStore
 import be.pascu.mapsforpebble.map.WebMercator
+import be.pascu.mapsforpebble.nav.CyclingDetector
 import be.pascu.mapsforpebble.nav.GoogleMapsNotification
 import be.pascu.mapsforpebble.nav.Maneuver
 import be.pascu.mapsforpebble.nav.MorseCue
@@ -102,6 +103,7 @@ object Navigator {
     lateinit var preferences: Preferences
         private set
     private val renderer = MapRenderer()
+    private val cyclingDetector = CyclingDetector()
     private val handler = CoroutineExceptionHandler { _, e -> Log.e(TAG, "unhandled", e) }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + handler)
     private val frameRequests = Channel<Unit>(Channel.CONFLATED)
@@ -240,6 +242,10 @@ object Navigator {
 
     fun onLocation(newLocation: Location) {
         location = newLocation
+        val wasCycling = cyclingDetector.cycling
+        if (newLocation.hasSpeed() && cyclingDetector.update(newLocation.speed, newLocation.time) != wasCycling) {
+            scope.launch { if (navState.active) pushNav(relaunch = false) }
+        }
         if (newLocation.hasBearing() && newLocation.hasSpeed() && newLocation.speed >= BEARING_MIN_SPEED_MPS) {
             bearing = newLocation.bearing.toDouble()
         }
@@ -249,12 +255,13 @@ object Navigator {
                 locationText =
                     String.format(
                         Locale.US,
-                        "%.5f, %.5f  ±%.0f m  %.1f m/s  heading %.0f°",
+                        "%.5f, %.5f  ±%.0f m  %.1f m/s  heading %.0f°%s",
                         newLocation.latitude,
                         newLocation.longitude,
                         newLocation.accuracy,
                         newLocation.speed,
                         bearing,
+                        if (cyclingDetector.cycling) "  cycling" else "",
                     ),
             )
         }
@@ -280,6 +287,10 @@ object Navigator {
     }
 
     fun onWatchAppClosed() = update { copy(navSend = "watchapp closed") }
+
+    fun onPreferencesChanged() {
+        scope.launch { if (navState.active) pushNav(relaunch = false) }
+    }
 
     fun onZoomLevel(level: Int) {
         if (!navState.active || level < AutoZoom.MIN * Protocol.ZOOM_SCALE) return
@@ -315,6 +326,8 @@ object Navigator {
         demoMode = true
         arrow = null
         zoomOverride = null
+        cyclingDetector.reset()
+        cyclingDetector.assume()
         sessionId++
         link.launchApp()
         delay(WATCH_LAUNCH_DELAY_MS)
@@ -355,6 +368,7 @@ object Navigator {
             sessionId++
             stopPending = false
             zoomOverride = null
+            cyclingDetector.reset()
         }
         if (serviceState == ServiceState.STOPPED && fallbackListener == null) startLocationService()
         val newInstruction = starting || !previous.sameInstruction(parsed)
@@ -383,6 +397,7 @@ object Navigator {
         navState = NavState.STOPPED
         arrow = null
         zoomOverride = null
+        cyclingDetector.reset()
         update { copy(navState = NavState.STOPPED, rawLines = emptyList()) }
         stopLocationService()
         stopFallbackLocation()
@@ -438,11 +453,12 @@ object Navigator {
         relaunch: Boolean,
         cue: ByteArray? = null,
     ) = navMutex.withLock {
-        var result = link.sendNav(navState, arrow, cue)
+        val keepLit = preferences.keepBacklightOnWhileCycling && cyclingDetector.cycling
+        var result = link.sendNav(navState, arrow, cue, keepLit)
         if (result == SendResult.AppNotOpen && relaunch) {
             link.launchApp()
             delay(WATCH_LAUNCH_DELAY_MS)
-            result = link.sendNav(navState, arrow, cue)
+            result = link.sendNav(navState, arrow, cue, keepLit)
         }
         update { copy(navSend = "nav: $result") }
     }

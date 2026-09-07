@@ -35,6 +35,7 @@ KEY_INSTRUCTION = 6
 KEY_ETA = 7
 KEY_DIST_REMAIN = 8
 KEY_TIME_REMAIN = 9
+KEY_KEEP_LIT = 11
 KEY_MAP_WIDTH = 20
 KEY_MAP_HEIGHT = 21
 KEY_MAP_FRAME = 22
@@ -145,6 +146,11 @@ def main():
     parser.add_argument("--platform", default="emery")
     parser.add_argument("--demo", action="store_true", help="send a demo navigation state")
     parser.add_argument("--stop", action="store_true", help="send navigation stopped")
+    parser.add_argument(
+        "--keep-lit",
+        action="store_true",
+        help="ask the watch to keep the backlight on while face up",
+    )
     parser.add_argument("--pattern", action="store_true", help="send a synthetic test frame")
     parser.add_argument("--frame", help="send a .wmf frame file (u16 w, u16 h, packed 2bpp rows)")
     parser.add_argument("--chunk", type=int, default=0, help="chunk size, default from watch hello")
@@ -178,6 +184,7 @@ def main():
                 KEY_ETA: CString("10:45"),
                 KEY_DIST_REMAIN: CString("2.1 km"),
                 KEY_TIME_REMAIN: CString("14 min"),
+                KEY_KEEP_LIT: Uint8(1 if args.keep_lit else 0),
             }
         )
         print("demo state ->", result)

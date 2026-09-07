@@ -72,7 +72,8 @@ class WatchLink(
         state: NavState,
         arrow: ByteArray?,
         cue: ByteArray? = null,
-    ): SendResult = send(navDictionary(state, arrow, cue))
+        keepLit: Boolean,
+    ): SendResult = send(navDictionary(state, arrow, cue, keepLit))
 
     suspend fun sendStopped(): SendResult = send(mapOf(Protocol.NAV_ACTIVE to PebbleDictionaryItem.UInt8(0)))
 
@@ -96,12 +97,14 @@ class WatchLink(
         state: NavState,
         arrow: ByteArray?,
         cue: ByteArray?,
+        keepLit: Boolean,
     ): PebbleDictionary {
         val dictionary = HashMap<UInt, PebbleDictionaryItem>()
         dictionary[Protocol.NAV_ACTIVE] = PebbleDictionaryItem.UInt8(if (state.active) 1 else 0)
         dictionary[Protocol.MANEUVER] = PebbleDictionaryItem.UInt8(state.maneuver.id)
         if (arrow != null) dictionary[Protocol.ARROW_BITMAP] = PebbleDictionaryItem.Bytes(arrow)
         if (cue != null) dictionary[Protocol.HAPTIC_PATTERN] = PebbleDictionaryItem.Bytes(cue)
+        dictionary[Protocol.KEEP_LIT] = PebbleDictionaryItem.UInt8(if (keepLit) 1 else 0)
         dictionary[Protocol.DISTANCE] = PebbleDictionaryItem.Text(state.distance)
         dictionary[Protocol.STREET] = PebbleDictionaryItem.Text(state.street)
         dictionary[Protocol.INSTRUCTION] = PebbleDictionaryItem.Text(state.instruction)

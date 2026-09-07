@@ -29,6 +29,7 @@ static bool apply_active(DictionaryIterator *iter) {
     s_state.distance[0] = '\0';
     s_state.street[0] = '\0';
     s_state.instruction[0] = '\0';
+    s_state.keep_lit = false;
   }
   if (active == s_state.active) {
     return false;
@@ -59,10 +60,24 @@ static bool apply_arrow(DictionaryIterator *iter) {
   return true;
 }
 
+static bool apply_keep_lit(DictionaryIterator *iter) {
+  Tuple *tuple = dict_find(iter, KEY_KEEP_LIT);
+  if (!tuple) {
+    return false;
+  }
+  bool keep_lit = tuple->value->uint8 != 0 && s_state.active;
+  if (keep_lit == s_state.keep_lit) {
+    return false;
+  }
+  s_state.keep_lit = keep_lit;
+  return true;
+}
+
 NavChange nav_state_apply(DictionaryIterator *iter) {
   NavChange change = NAV_CHANGE_NONE;
   bool instruction_changed = false;
   bool text_changed = false;
+  bool was_active = s_state.active;
 
   text_changed |= apply_active(iter);
   instruction_changed |= apply_maneuver(iter);
@@ -79,6 +94,9 @@ NavChange nav_state_apply(DictionaryIterator *iter) {
   }
   if (instruction_changed && s_state.active) {
     change |= NAV_CHANGE_INSTRUCTION;
+  }
+  if (apply_keep_lit(iter) || (was_active && !s_state.active)) {
+    change |= NAV_CHANGE_BACKLIGHT;
   }
   return change;
 }
