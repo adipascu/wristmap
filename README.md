@@ -372,5 +372,9 @@ in order, typos included.
 39. Update gobal claude md to do this type of cleanup in each session like I asked you here of unused resources, chrome tabs, globally installed tools, VMs etc. If anything was done that mutated the system state globally, undo it when unused. Clean up  everything unless its something the user asked for to stay.
 40. resume
 
-40 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
+41. finish work pn PR1, do /mr-polish on it and merge it in
+42. make sure fioal version of the app is installed on my pebble
+43. all done?
+
+43 prompts. One multiple-choice question, answered in free text as prompt 17. 0 lines of code
 written or edited by a human. One address in prompt 12 is masked.
