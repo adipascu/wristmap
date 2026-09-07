@@ -83,6 +83,7 @@ jobs:
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: coverage-report
@@ -99,13 +100,15 @@ jobs:
         with:
           node-version: "22"
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d
+        with:
+          enable-cache: false
       - name: Install pebble-tool
         run: |
           sudo apt-get update && sudo apt-get install -y libpng-dev
           uv tool install "pebble-tool==${PEBBLE_TOOL_VERSION}" --python 3.13
           pebble --version | grep -q "${PEBBLE_TOOL_VERSION}" || { pebble --version; exit 1; }
       - name: Install the Pebble SDK
-        run: pebble sdk install "${PEBBLE_SDK_VERSION}" || pebble sdk list | grep -q "${PEBBLE_SDK_VERSION}"
+        run: pebble sdk install "${PEBBLE_SDK_VERSION}"
       - name: Build
         working-directory: watchapp
         run: pebble build
@@ -130,6 +133,7 @@ jobs:
             echo "| Artifact | Bytes |"
             echo "|----------|------:|"
             for f in wristmap-apk/*/app-debug.apk wristmap-apk/*/app-release.apk wristmap-pbw/*.pbw; do
-              printf '| %s | %s |\n' "$(basename "$f")" "$(stat -c %s "$f")"
+              size=$(stat -c %s "$f")
+              printf '| %s | %s |\n' "$(basename "$f")" "$size"
             done
           } >> "$GITHUB_STEP_SUMMARY"

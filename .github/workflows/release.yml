@@ -44,6 +44,8 @@ jobs:
         with:
           node-version: "22"
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d
+        with:
+          enable-cache: false
       - name: Install pebble-tool
         run: |
           sudo apt-get update && sudo apt-get install -y libpng-dev
@@ -52,7 +54,7 @@ jobs:
       - name: Build watchapp
         working-directory: watchapp
         run: |
-          pebble sdk install 4.33.1 || pebble sdk list | grep -q 4.33.1
+          pebble sdk install 4.33.1
           pebble build
       - name: Collect artifacts
         run: |
