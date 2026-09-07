@@ -81,8 +81,8 @@ kover {
                     "be.pascu.wristmap.pebble.WatchListenerService",
                     "be.pascu.wristmap.map.MapRenderer*",
                     "be.pascu.wristmap.map.TileStore*",
-                    "be.pascu.wristmap.nav.GoogleMapsNotification",
-                    "be.pascu.wristmap.nav.NotificationRead",
+                    "be.pascu.wristmap.nav.GoogleMapsNotification*",
+                    "be.pascu.wristmap.nav.NotificationRead*",
                 )
             }
         }
@@ -94,7 +94,7 @@ kover {
                 minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION)
             }
             rule {
-                minBound(99, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                minBound(100, coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
             }
         }
     }

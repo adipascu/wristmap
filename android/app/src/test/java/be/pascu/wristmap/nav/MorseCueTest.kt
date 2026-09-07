@@ -28,7 +28,7 @@ class MorseCueTest {
 
     @Test
     fun patternIsTheEncodedDurations() {
-        assertArrayEquals(MorseCue.encode(MorseCue.durations(Maneuver.TURN_RIGHT)!!), MorseCue.pattern(Maneuver.TURN_RIGHT))
+        assertArrayEquals(byteArrayOf(0x64, 0x00, 0x64, 0x00, 0x2C, 0x01, 0x64, 0x00, 0x64, 0x00), MorseCue.pattern(Maneuver.TURN_RIGHT))
         assertNull(MorseCue.pattern(Maneuver.UNKNOWN))
     }
 

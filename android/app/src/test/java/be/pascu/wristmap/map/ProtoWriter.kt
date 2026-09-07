@@ -66,11 +66,6 @@ class ProtoWriter {
         return this
     }
 
-    fun raw(bytes: ByteArray): ProtoWriter {
-        out.write(bytes)
-        return this
-    }
-
     fun bytes(): ByteArray = out.toByteArray()
 
     companion object {

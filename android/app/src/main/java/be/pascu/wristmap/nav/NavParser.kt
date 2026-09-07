@@ -45,7 +45,7 @@ object NavParser {
         var eta = ""
 
         for (line in lines) {
-            val parts = line.split(separator).map { it.trim() }
+            val parts = line.split(separator).map { it.trim() }.filter { it.isNotEmpty() }
             if (parts.size >= 2) {
                 val hasClock = parts.any { clock.containsMatchIn(it) }
                 val hasDuration = parts.any { duration.containsMatchIn(it) }

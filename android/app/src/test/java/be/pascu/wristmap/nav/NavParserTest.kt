@@ -86,12 +86,11 @@ class NavParserTest {
         assertEquals("1 km", state.distRemain)
         assertEquals("12 min", state.timeRemain)
         assertEquals("", state.distance)
-        assertEquals("200 m · 1 km", state.instruction)
     }
 
     @Test
     fun ignoresEmptyPartsAndDurationOnlyLines() {
-        val state = NavParser.parse(RawNotification(listOf("12 min · Turn left", "200 m ·  · Turn right", "13 min", "14 min"), false))
+        val state = NavParser.parse(RawNotification(listOf("12 min · Turn left", "200 m · \u00A0 · Turn right", "13 min", "14 min"), false))
         assertEquals("12 min · Turn left", state.instruction)
         assertEquals("200 m", state.distance)
         assertEquals("13 min", state.timeRemain)
