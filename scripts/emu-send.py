@@ -185,7 +185,7 @@ def main():
     inbox_max = hello.get(41, 2048)
     chunk = args.chunk or max(200, min(inbox_max - 96, 8000))
     width = hello.get(42, 200)
-    height = hello.get(43, 152)
+    height = hello.get(43, 148)
     print("hello:", hello, "chunk:", chunk)
 
     if args.pattern:

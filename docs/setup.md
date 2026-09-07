@@ -44,4 +44,5 @@ on the phone beyond the permissions below.
   sends a sharper frame within a few hundred milliseconds.
 - Any touch lights the screen for five seconds.
 - Back leaves the app. The other buttons do nothing.
-- The clock is at the top right while navigating and large on the idle screen.
+- The clock is at the top right while navigating and large on the idle screen. The arrival
+  time sits at the bottom right, marked ETA, next to the time and distance left.

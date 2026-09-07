@@ -39,7 +39,7 @@ Maps Navigation companion (Android, this repo)
 Maps Navigation watchapp (C, this repo)
   top bar: arrow, distance, street
   map: the phone-rendered bitmap in a palettised GBitmap
-  bottom bar: time left, distance left, arrival time
+  bottom bar: time left and distance left, arrival time on the right
 ```
 
 The next turn is an estimate. Google only tells us "in 200 m, turn left onto Rue X". The
@@ -149,7 +149,7 @@ directory (`last-frame.wmf`, pull it with `adb shell run-as be.pascu.mapsforpebb
 `--launch` restarts the watchapp first so the script sees its hello message, sizes the chunks
 the way the companion does (inbox size minus 96 bytes, at most 8000) and draws the test
 pattern at the size the watch announced. Without it `--pattern` assumes the emery layout
-(200x152), which the watch rejects on a smaller screen such as basalt.
+(200x148), which the watch rejects on a smaller screen such as basalt.
 
 ## Releasing
 
