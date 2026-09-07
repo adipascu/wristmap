@@ -15,7 +15,7 @@ navigation notification it posts, so this is Android only.
 
 The product is called Maps Navigation for Pebble in the store and in headings. Everywhere else a
 user sees it, on the watch, on the phone and in running prose, it is Maps Navigation.
-Identifiers use the code name Maps for Pebble: the repository `tockstone/maps-for-pebble`, the
+Identifiers use the code name Maps for Pebble: the repository `peblum/maps-for-pebble`, the
 Android package `be.pascu.mapsforpebble`, the class and Gradle project name `MapsForPebble`,
 the release assets `maps-for-pebble.pbw` and `maps-for-pebble.apk`. The two are kept apart so
 the display name can change without touching an identifier.

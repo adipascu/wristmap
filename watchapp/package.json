@@ -31,7 +31,7 @@
     "capabilities": [],
     "companionApp": {
       "android": {
-        "url": "https://github.com/tockstone/maps-for-pebble",
+        "url": "https://github.com/peblum/maps-for-pebble",
         "apps": [
           {
             "package": "be.pascu.mapsforpebble"

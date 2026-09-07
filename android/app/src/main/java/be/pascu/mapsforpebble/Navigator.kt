@@ -87,7 +87,7 @@ object Navigator {
     private const val WATCH_LAUNCH_DELAY_MS = 1200L
     private const val STOP_LINGER_MS = 2000L
     private const val BEARING_MIN_SPEED_MPS = 0.8f
-    private const val USER_AGENT = "MapsForPebble/1.0 (+https://github.com/tockstone/maps-for-pebble)"
+    private const val USER_AGENT = "MapsForPebble/1.0 (+https://github.com/peblum/maps-for-pebble)"
     private const val DEMO_LAT = 50.8467
     private const val DEMO_LON = 4.3525
     private const val MAX_TILES = 9
