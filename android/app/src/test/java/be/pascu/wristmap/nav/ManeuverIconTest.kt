@@ -14,4 +14,13 @@ class ManeuverIconTest {
         assertEquals(0x81.toByte(), packed[0])
         assertEquals(0x80.toByte(), packed[ManeuverIcon.ROW_BYTES + 1])
     }
+
+    @Test
+    fun opaqueIconsCompareAgainstTheCornerColour() {
+        val pixels = IntArray(ManeuverIcon.SIZE * ManeuverIcon.SIZE) { 0xFF2040C0.toInt() }
+        pixels[5] = 0xFFFFFFFF.toInt()
+        pixels[6] = 0xFF2242C2.toInt()
+        val packed = ManeuverIcon.packPixels(pixels)
+        assertEquals(0x04.toByte(), packed[0])
+    }
 }

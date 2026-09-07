@@ -1,7 +1,5 @@
 package be.pascu.wristmap.map
 
-import android.graphics.Bitmap
-
 object FrameEncoder {
     const val WHITE = 0
     const val BLACK = 1
@@ -45,12 +43,6 @@ object FrameEncoder {
             }
         }
         return out
-    }
-
-    fun encode(bitmap: Bitmap): ByteArray {
-        val pixels = IntArray(bitmap.width * bitmap.height)
-        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        return encode(pixels, bitmap.width, bitmap.height)
     }
 
     fun toWmf(

@@ -26,6 +26,8 @@ class FrameEncoderTest {
         assertEquals(FrameEncoder.BLACK, FrameEncoder.classify(0xFF202020.toInt()))
         assertEquals(FrameEncoder.GRAY, FrameEncoder.classify(0xFF999999.toInt()))
         assertEquals(FrameEncoder.ACCENT, FrameEncoder.classify(0xFF1010F0.toInt()))
+        assertEquals(FrameEncoder.GRAY, FrameEncoder.classify(0xFFFF00FF.toInt()))
+        assertEquals(FrameEncoder.GRAY, FrameEncoder.classify(0xFF10FFF0.toInt()))
     }
 
     @Test

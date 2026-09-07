@@ -75,11 +75,26 @@ class ProtoReader(
 
     fun skip(wireType: Int) {
         when (wireType) {
-            0 -> readVarint()
-            1 -> position += 8
-            2 -> position += readVarint().toInt()
-            5 -> position += 4
-            else -> throw IllegalStateException("unsupported wire type $wireType")
+            0 -> {
+                readVarint()
+            }
+
+            1 -> {
+                position += 8
+            }
+
+            2 -> {
+                val length = readVarint().toInt()
+                position += length
+            }
+
+            5 -> {
+                position += 4
+            }
+
+            else -> {
+                throw IllegalStateException("unsupported wire type $wireType")
+            }
         }
     }
 }

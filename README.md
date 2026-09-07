@@ -114,7 +114,12 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 Formatting and lint run as a pre-commit hook and as the `check` job in CI, through
 [pre-commit](https://pre-commit.com): `clang-format` for the C sources, `ruff` for the Python
 scripts, `ktlint` (through the Gradle plugin) for Kotlin, `actionlint` for the workflows, and
-the Android unit tests on staged Android files. Install the hook once per clone:
+the Android unit tests with the coverage gate on staged Android files. Kover requires 100%
+line, instruction and branch coverage of the pure Kotlin (parsing, tiles, route preview,
+encoding, Morse, zoom, chunking). Classes that need Android at runtime (the activity, the
+services, the navigator, the renderer, the tile store, the notification reader, the watch
+link) are excluded from the measurement and covered by the emulator harness and on-device
+runs instead. Install the hook once per clone:
 
 ```
 pipx install pre-commit

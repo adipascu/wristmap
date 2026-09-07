@@ -48,27 +48,27 @@ class TileData(
                 val scale = WebMercator.EXTENT.toFloat() / layer.extent
 
                 fun scaled(points: FloatArray): FloatArray = if (scale == 1f) points else FloatArray(points.size) { points[it] * scale }
-                when (layer.name) {
-                    "transportation" -> for (feature in layer.features) {
+                if (layer.name == "transportation") {
+                    for (feature in layer.features) {
                         if (feature.type != MvtFeature.LINESTRING) continue
                         val kind = roadKind(feature.tags) ?: continue
                         for (part in feature.geometry) roads.add(Road(scaled(part), kind, emptyList()))
                     }
-
-                    "transportation_name" -> for (feature in layer.features) {
+                } else if (layer.name == "transportation_name") {
+                    for (feature in layer.features) {
                         if (feature.type != MvtFeature.LINESTRING) continue
                         val kind = roadKind(feature.tags) ?: RoadKind.MINOR
                         val names = names(feature.tags)
                         if (names.isEmpty()) continue
                         for (part in feature.geometry) namedRoads.add(Road(scaled(part), kind, names))
                     }
-
-                    "water" -> for (feature in layer.features) {
+                } else if (layer.name == "water") {
+                    for (feature in layer.features) {
                         if (feature.type != MvtFeature.POLYGON) continue
                         water.add(Area(feature.geometry.map { scaled(it) }))
                     }
-
-                    "waterway" -> for (feature in layer.features) {
+                } else if (layer.name == "waterway") {
+                    for (feature in layer.features) {
                         if (feature.type != MvtFeature.LINESTRING) continue
                         for (part in feature.geometry) waterways.add(scaled(part))
                     }
@@ -77,30 +77,42 @@ class TileData(
             return TileData(tileX * WebMercator.EXTENT, tileY * WebMercator.EXTENT, roads, namedRoads, water, waterways)
         }
 
+        private val kindsByClass =
+            mapOf(
+                "motorway" to RoadKind.MOTORWAY,
+                "trunk" to RoadKind.MOTORWAY,
+                "primary" to RoadKind.PRIMARY,
+                "secondary" to RoadKind.SECONDARY,
+                "tertiary" to RoadKind.SECONDARY,
+                "minor" to RoadKind.MINOR,
+                "busway" to RoadKind.MINOR,
+                "bus_guideway" to RoadKind.MINOR,
+                "service" to RoadKind.SERVICE,
+                "track" to RoadKind.SERVICE,
+                "raceway" to RoadKind.SERVICE,
+                "path" to RoadKind.PATH,
+                "rail" to RoadKind.RAIL,
+                "transit" to RoadKind.RAIL,
+            )
+
         private fun roadKind(tags: Map<String, Any>): RoadKind? {
-            val subclass = tags["subclass"]?.toString()
-            return when (tags["class"]?.toString()) {
-                "motorway", "trunk" -> RoadKind.MOTORWAY
-                "primary" -> RoadKind.PRIMARY
-                "secondary", "tertiary" -> RoadKind.SECONDARY
-                "minor", "busway", "bus_guideway" -> RoadKind.MINOR
-                "service", "track", "raceway" -> RoadKind.SERVICE
-                "path" -> if (subclass == "cycleway") RoadKind.CYCLEWAY else RoadKind.PATH
-                "rail", "transit" -> RoadKind.RAIL
-                else -> null
-            }
+            val kind = kindsByClass[tags["class"]] ?: return null
+            return if (kind == RoadKind.PATH && tags["subclass"] == "cycleway") RoadKind.CYCLEWAY else kind
         }
 
         private fun names(tags: Map<String, Any>): List<String> {
             val ordered = ArrayList<String>()
-            tags["name"]?.toString()?.takeIf { it.isNotBlank() }?.let { ordered.add(it) }
+            val primary = tags["name"]
+            if (primary is String && primary.isNotBlank()) ordered.add(primary)
             for ((key, value) in tags) {
-                if ((key.startsWith("name:") || key.startsWith("name_") || key == "ref") && value is String && value.isNotBlank()) {
-                    ordered.add(value)
-                }
+                if (!isNameLike(key)) continue
+                if (value !is String) continue
+                if (value.isNotBlank()) ordered.add(value)
             }
             return ordered.distinct()
         }
+
+        private fun isNameLike(key: String): Boolean = key.startsWith("name:") || key.startsWith("name_") || key == "ref"
     }
 }
 

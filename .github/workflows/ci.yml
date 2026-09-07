@@ -43,12 +43,16 @@ jobs:
       - name: Install platform 37
         run: yes | sdkmanager "platforms;android-37.0" >/dev/null
       - uses: gradle/actions/setup-gradle@v4
-      - name: Build and test
-        run: ./gradlew assembleDebug testDebugUnitTest --no-daemon
+      - name: Build, test and verify coverage
+        run: ./gradlew assembleDebug testDebugUnitTest koverVerifyDebug koverHtmlReportDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: wristmap-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: android/app/build/reports/kover/htmlDebug
 
   watchapp:
     name: Pebble watchapp

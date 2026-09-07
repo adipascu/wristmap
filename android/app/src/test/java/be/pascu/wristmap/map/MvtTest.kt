@@ -3,59 +3,9 @@ package be.pascu.wristmap.map
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.io.ByteArrayOutputStream
-
-class ProtoWriter {
-    private val out = ByteArrayOutputStream()
-
-    fun varint(value: Long): ProtoWriter {
-        var remaining = value
-        while (remaining and 0x7fL.inv() != 0L) {
-            out.write(((remaining and 0x7f) or 0x80).toInt())
-            remaining = remaining ushr 7
-        }
-        out.write(remaining.toInt())
-        return this
-    }
-
-    fun tag(
-        field: Int,
-        wire: Int,
-    ): ProtoWriter = varint(((field shl 3) or wire).toLong())
-
-    fun string(
-        field: Int,
-        value: String,
-    ): ProtoWriter {
-        val bytes = value.toByteArray(Charsets.UTF_8)
-        tag(field, 2).varint(bytes.size.toLong())
-        out.write(bytes)
-        return this
-    }
-
-    fun message(
-        field: Int,
-        body: ByteArray,
-    ): ProtoWriter {
-        tag(field, 2).varint(body.size.toLong())
-        out.write(body)
-        return this
-    }
-
-    fun packed(
-        field: Int,
-        values: LongArray,
-    ): ProtoWriter {
-        val inner = ProtoWriter()
-        for (value in values) inner.varint(value)
-        return message(field, inner.bytes())
-    }
-
-    fun bytes(): ByteArray = out.toByteArray()
-}
 
 class MvtTest {
-    private fun zigzag(value: Int): Long = ((value shl 1) xor (value shr 31)).toLong()
+    private fun zigzag(value: Int): Long = ProtoWriter.zigzag(value)
 
     private fun tile(): ByteArray {
         val feature =

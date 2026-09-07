@@ -27,6 +27,12 @@ class MorseCueTest {
     }
 
     @Test
+    fun patternIsTheEncodedDurations() {
+        assertArrayEquals(byteArrayOf(0x64, 0x00, 0x64, 0x00, 0x2C, 0x01, 0x64, 0x00, 0x64, 0x00), MorseCue.pattern(Maneuver.TURN_RIGHT))
+        assertNull(MorseCue.pattern(Maneuver.UNKNOWN))
+    }
+
+    @Test
     fun encodesLittleEndianHalfWords() {
         assertArrayEquals(byteArrayOf(0x2C, 0x01, 0x64, 0x00), MorseCue.encode(intArrayOf(300, 100)))
     }

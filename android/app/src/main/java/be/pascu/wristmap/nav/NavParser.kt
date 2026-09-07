@@ -52,8 +52,9 @@ object NavParser {
                 val hasDistance = parts.any { Distance.isDistance(it) }
                 if (hasClock || (hasDuration && hasDistance)) {
                     for (part in parts) {
+                        val partClock = clock.find(part)?.value
                         when {
-                            clock.containsMatchIn(part) && eta.isEmpty() -> eta = clockOf(part)
+                            partClock != null && eta.isEmpty() -> eta = partClock
                             Distance.isDistance(part) && distRemain.isEmpty() -> distRemain = part
                             duration.containsMatchIn(part) && timeRemain.isEmpty() -> timeRemain = part
                         }
@@ -66,9 +67,10 @@ object NavParser {
                     continue
                 }
             }
+            val lineClock = etaOnly(line)
             when {
                 Distance.isDistance(line) -> if (distance.isEmpty()) distance = line
-                isEtaOnly(line) -> if (eta.isEmpty()) eta = clockOf(line)
+                lineClock != null -> if (eta.isEmpty()) eta = lineClock
                 isDurationOnly(line) -> if (timeRemain.isEmpty()) timeRemain = line
                 else -> if (instruction.isEmpty()) instruction = line
             }
@@ -90,16 +92,14 @@ object NavParser {
         )
     }
 
-    private fun clockOf(text: String): String = clock.find(text)?.value ?: text
-
-    private fun isEtaOnly(text: String): Boolean {
-        val match = clock.find(text) ?: return false
+    private fun etaOnly(text: String): String? {
+        val match = clock.find(text) ?: return null
         val rest =
             (text.substring(0, match.range.first) + text.substring(match.range.last + 1))
                 .replace(etaWords, " ")
                 .replace(nonLetter, " ")
                 .trim()
-        return rest.isEmpty()
+        return if (rest.isEmpty()) match.value else null
     }
 
     private fun isDurationOnly(text: String): Boolean {
