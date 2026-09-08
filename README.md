@@ -298,7 +298,16 @@ The Android launcher and the notification use a different mark, an arrow, define
 
 ## License
 
-MIT, see `LICENSE`.
+Copyright © 2026 Adrian Pascu. Licensed under the EUPL.
+
+The full text is in [`LICENSE`](LICENSE), the
+[European Union Public Licence v. 1.2](https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12).
+Anyone who distributes a build of this app, modified or not, has to make the corresponding source
+available under the same licence. Releases up to and including `v1.2.0` went out under the MIT
+licence and stay available under it, so the change binds only what follows.
+
+Dependencies keep their own licences. PebbleKit Android 2, the AndroidX libraries and
+kotlinx-coroutines are Apache 2.0.
 
 ---
 
