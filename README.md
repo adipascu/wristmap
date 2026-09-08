@@ -52,10 +52,10 @@ Maps Navigation companion (Android, this repo)
   NotificationListenerService reads the text and the icon
   LocationManager gives position, speed and bearing
   OpenFreeMap vector tiles (OpenStreetMap data, zoom 14) are decoded on the phone
-  RoutePreview walks the announced distance along the current road on the OSM graph
-    and snaps the end point to the street named in the instruction
+  RoutePreview searches the OSM graph ahead for a way of about the announced length
+    that ends on the street named in the instruction
   MapRenderer draws a 4 colour, heading-up map on a Canvas and packs it as 2 bits per pixel
-        │  PebbleKit Android 2 AppMessages (one 8 KB message per chunk)
+        │  PebbleKit Android 2 AppMessages (chunks sized to the watch inbox, up to 8 KB)
         ▼
 Maps Navigation watchapp (C, this repo)
   top bar: arrow, distance, street
