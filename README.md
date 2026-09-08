@@ -32,9 +32,14 @@ what it is doing.
 The product is called Maps Navigation for Pebble in the store and in headings. Everywhere else a
 user sees it, on the watch, on the phone and in running prose, it is Maps Navigation.
 Identifiers use the code name Maps for Pebble: the repository `peblum/maps-for-pebble`, the
-Android package `be.pascu.mapsforpebble`, the class and Gradle project name `MapsForPebble`,
+Android package `org.peblum.mapsforpebble`, the class and Gradle project name `MapsForPebble`,
 the release assets `maps-for-pebble.pbw` and `maps-for-pebble.apk`. The two are kept apart so
 the display name can change without touching an identifier.
+
+The package sits under `peblum.org`, the domain behind the GitHub organisation. It was
+`be.pascu.mapsforpebble` up to 1.2.0, which tied a shared project to one person's domain. An
+application id is fixed for the life of an install, so the move makes 2.0.0 a separate app rather
+than an update to the old one.
 
 ## How it works
 
@@ -80,9 +85,10 @@ Two parts: the watchapp on the watch and the companion on the phone.
 
 1. **Watchapp**: open `maps-for-pebble.pbw` from the latest release in the Pebble app, or build it
    (see below) and sideload it.
-2. **Companion**: install `maps-for-pebble.apk` from the latest release. If the earlier Wristmap
-   build is on the phone, uninstall it first, since it is a separate package and both would
-   mirror the same directions. Open the new app once and grant
+2. **Companion**: install `maps-for-pebble.apk` from the latest release. If an earlier build is on
+   the phone, whether it called itself Wristmap or Maps Navigation, uninstall it first. Both of
+   those used a different package name, so they install alongside this one and would mirror the
+   same directions twice. Open the new app once and grant
    notification access, location, and location "all the time". The last one matters: directions
    start while Google Maps is in front, so the companion's location service starts from the
    background, and Android only feeds GPS to such a service when background location is allowed.
@@ -167,7 +173,7 @@ pre-commit install
 
 `scripts/emu-send.py` drives the watchapp in the emulator without a phone: it sends a demo
 navigation state, a synthetic test pattern, or a frame the companion wrote to its cache
-directory (`last-frame.wmf`, pull it with `adb shell run-as be.pascu.mapsforpebble cat cache/last-frame.wmf`).
+directory (`last-frame.wmf`, pull it with `adb shell run-as org.peblum.mapsforpebble cat cache/last-frame.wmf`).
 
 ```
 ~/.local/share/uv/tools/pebble-tool/bin/python scripts/emu-send.py --launch --demo --pattern
@@ -201,7 +207,7 @@ the tag check enforces on the repository side.
 
 Both sides use raw integer AppMessage keys, defined in `watchapp/src/c/protocol.h` and
 `android/.../pebble/Protocol.kt`. The watchapp UUID is `58b9be94-3f7b-4338-94e5-90890b2ab7a0`
-and the companion package `be.pascu.mapsforpebble` is whitelisted in `watchapp/package.json`.
+and the companion package `org.peblum.mapsforpebble` is whitelisted in `watchapp/package.json`.
 
 Phone to watch:
 
