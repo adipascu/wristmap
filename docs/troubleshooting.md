@@ -14,7 +14,7 @@ and the last frame. Read it first.
 | "No map data" on the watch | No tiles cached for this area and no connection, or the tile server unreachable. | Wait for connectivity. The status line shows how many tiles the last frame used. |
 | Map does not react to swipes | The watch runs an older watchapp, or touch is disabled system-wide on the watch. | Reinstall `maps-for-pebble.pbw`. |
 | Watch does not open when directions start | Notification access is not granted, or Google Maps' notification was not recognised. | Check the setup section, then the "Notification text" line in the status once navigating. |
-| Turn marker in the wrong place | The estimate walked the wrong road at a fork, or the named street was not matched. | It is an estimate. The turn arrow and distance at the top are Google's and always right. |
+| Turn marker in the wrong place | The search found a street of the right name at about the right distance, but not the one Google meant, or it took a turn a vehicle could not. | It is an estimate. The turn arrow and distance at the top are Google's and always right. |
 
 ## Getting logs
 

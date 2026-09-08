@@ -2,7 +2,7 @@ package be.pascu.mapsforpebble.map
 
 import java.text.Normalizer
 
-enum class RoadKind { MOTORWAY, PRIMARY, SECONDARY, MINOR, SERVICE, PATH, CYCLEWAY, RAIL }
+enum class RoadKind { MOTORWAY, PRIMARY, SECONDARY, MINOR, SERVICE, PATH, CYCLEWAY, STEPS, RAIL }
 
 class Road(
     val points: FloatArray,
@@ -97,7 +97,12 @@ class TileData(
 
         private fun roadKind(tags: Map<String, Any>): RoadKind? {
             val kind = kindsByClass[tags["class"]] ?: return null
-            return if (kind == RoadKind.PATH && tags["subclass"] == "cycleway") RoadKind.CYCLEWAY else kind
+            if (kind != RoadKind.PATH) return kind
+            return when (tags["subclass"]) {
+                "cycleway" -> RoadKind.CYCLEWAY
+                "steps" -> RoadKind.STEPS
+                else -> kind
+            }
         }
 
         private fun names(tags: Map<String, Any>): List<String> {

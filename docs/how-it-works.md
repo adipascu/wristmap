@@ -50,12 +50,32 @@ reader, and keep the roads, named roads, water and waterways of each tile as flo
 tile-local coordinates. Tiles are cached on disk for two weeks and in memory within an 8 MB
 budget. The TileJSON at `https://tiles.openfreemap.org/planet` names the current tileset.
 
+**`RoadGraph`** turns the loaded road geometry into a graph. Every vertex becomes a node, and
+two vertices at the same position become the same node, which is what OpenStreetMap gives at a
+real junction. On top of that, a way that ends within a metre and a half of the middle of
+another way splits it and joins there, which is how a side street meeting a road between its
+vertices becomes a junction. Positions are kept relative to the corner of the loaded tiles so
+the graph survives from frame to frame, and it is rebuilt only when the set of tiles changes.
+It answers shortest path queries from one node under a cost ceiling, with one node blocked.
+
 **`RoutePreview`** estimates where the next turn is. Google says "in 200 m, turn left onto
-Rue X". The companion snaps the GPS position to the nearest road (preferring one that runs in
-the direction of travel), follows that road for 200 m, continuing through intersections onto
-the road that keeps the same heading within 80 degrees, and if a road named "Rue X" passes
-within 60 m of the end point it snaps the turn there. It also names the road you are on. Off
-the road network it draws a straight line ahead instead.
+Rue X" and never gives the route. The companion snaps the GPS position to the nearest road
+(preferring one that runs in the direction of travel), then asks the graph for the shortest way
+to any node within 25 m of a road named "Rue X". It leaves by the nearest node ahead and blocks
+the nearest node behind, so the line cannot set off backwards through you. The candidate whose
+length is closest to the announced 200 m wins, as long as it is within 35 per cent or 30 m of
+it, and its geometry becomes the blue line. Google measures its distance along its own route,
+so a path of about the right length ending on the right street is usually that route, turns
+included. Past the turn the line carries on along the named street for 60 m, on the side the
+manoeuvre implies. With no match it falls back to following the current road for the announced
+distance, continuing through intersections onto the road that keeps the same heading within 80
+degrees, and snapping the marker onto a matching street within 60 m. It also names the road you
+are on. Off the road network it draws a straight line ahead instead.
+
+The search knows the shape of the network and nothing else about it. Stairs are left out, since
+no route is drawn up a staircase, but the tiles carry no direction of travel and no turn
+restrictions, so a one way street is walkable either way here and a shortest path can take a
+turn that is not allowed. The line is a good reconstruction, not Google's own geometry.
 
 **`MapRenderer`** draws a heading-up map on an Android canvas with anti-aliasing off so every
 pixel is exactly one of four colours: white, black (roads with white cores by class), light
