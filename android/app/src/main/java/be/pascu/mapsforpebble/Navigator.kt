@@ -546,6 +546,7 @@ object Navigator {
             state.street,
             tileList,
             WebMercator.metersPerUnit(lat),
+            state.maneuver.turnsLeft,
         )
 
     private fun loadTiles(

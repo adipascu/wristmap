@@ -16,6 +16,15 @@ enum class Maneuver(
     ROUNDABOUT(10),
     RAMP(11),
     DESTINATION(12),
+    ;
+
+    val turnsLeft: Boolean?
+        get() =
+            when (this) {
+                TURN_LEFT, SLIGHT_LEFT, SHARP_LEFT, UTURN -> true
+                TURN_RIGHT, SLIGHT_RIGHT, SHARP_RIGHT -> false
+                else -> null
+            }
 }
 
 data class NavState(

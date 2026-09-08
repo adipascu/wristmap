@@ -57,7 +57,8 @@ Exit navigation
 
 ## What Google Maps does not give
 
-- The route. The turn position on the map is an estimate along the road network.
+- The route. The line on the map is reconstructed from the announced distance and the street
+  name by searching the road network, so it is a good guess rather than Google's own geometry.
 - The mode (walking, cycling, driving). Maps Navigation mirrors whatever is navigating and
   caps the zoom above 4 m/s so that a faster trip gets a wider view.
 - Lane guidance and the full step list.

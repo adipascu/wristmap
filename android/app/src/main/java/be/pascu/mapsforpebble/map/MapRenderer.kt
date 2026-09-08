@@ -176,7 +176,7 @@ class MapRenderer {
         detail: Int,
     ): Float =
         when (kind) {
-            RoadKind.PATH -> floatArrayOf(0f, 0f, 1f, 1f)[detail]
+            RoadKind.PATH, RoadKind.STEPS -> floatArrayOf(0f, 0f, 1f, 1f)[detail]
             RoadKind.CYCLEWAY -> floatArrayOf(0f, 1f, 2f, 2f)[detail]
             else -> 0f
         }
@@ -193,6 +193,10 @@ class MapRenderer {
         if (preview.path.size >= 4) {
             stroke.strokeWidth = 5f / pixelsPerUnit
             drawPolyline(canvas, preview.path)
+        }
+        if (preview.afterTurn.size >= 4) {
+            stroke.strokeWidth = 5f / pixelsPerUnit
+            drawPolyline(canvas, preview.afterTurn)
         }
     }
 

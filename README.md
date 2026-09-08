@@ -58,12 +58,17 @@ Maps Navigation watchapp (C, this repo)
   bottom bar: time left and distance left, arrival time on the right
 ```
 
-The next turn is an estimate. Google only tells us "in 200 m, turn left onto Rue X". The
-companion snaps your GPS position to the nearest road, follows that road for 200 m through
-OpenStreetMap intersections that continue in roughly the same direction, and if a street named
-"Rue X" is within 60 m of the end point it snaps the turn marker onto it. The path it followed
-is drawn in blue, the turn as a blue dot, and the named street is highlighted in blue as well.
-When you are off the road network it draws a straight line ahead instead.
+The next turn is an estimate. Google only tells us "in 200 m, turn left onto Rue X", never the
+route itself. The companion snaps your GPS position to the nearest road, builds a graph of the
+loaded OpenStreetMap geometry, and looks for the shortest way ahead of you to a street named
+"Rue X" that is about 200 m long. Google measures that 200 m along its own route, so a path of
+about the right length ending on the right street is usually the one it is sending you down, and
+the blue line then follows the real route through its turns instead of carrying straight on. The
+turn is a blue dot where the two streets meet, and the line carries on past it for a short way
+on the side the manoeuvre implies. It stays a guess: the map data carries no one way streets and
+no turn restrictions, so the line can take a turn a vehicle could not. When no named street sits
+at about the announced distance, the line falls back to following the current road ahead, and off
+the road network it is a straight line.
 
 Zoom follows the distance to the turn so that the turn is on screen (zoom 14 to 18, capped at
 17 when moving faster than 4 m/s, so cycling gets a wider view). Swiping on the watch
