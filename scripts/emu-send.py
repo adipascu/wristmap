@@ -149,7 +149,7 @@ def main():
     parser.add_argument(
         "--keep-lit",
         action="store_true",
-        help="ask the watch to keep the backlight on while face up",
+        help="ask the watch to keep the backlight on while it is held to be read",
     )
     parser.add_argument("--pattern", action="store_true", help="send a synthetic test frame")
     parser.add_argument("--frame", help="send a .wmf frame file (u16 w, u16 h, packed 2bpp rows)")

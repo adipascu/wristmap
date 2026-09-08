@@ -60,6 +60,6 @@ Exit navigation
 - The route. The turn position on the map is an estimate along the road network.
 - The mode (walking, cycling, driving). Maps Navigation mirrors whatever is navigating and
   infers cycling from the GPS speed: the zoom cap applies above 4 m/s, and 3.5 m/s sustained
-  for ten seconds turns on the keep the backlight on setting.
+  for ten seconds arms the keep the backlight on setting, which then also waits for dark.
 - Lane guidance and the full step list.
 - Anything on iOS. Notifications are sandboxed there, so this stays Android only.

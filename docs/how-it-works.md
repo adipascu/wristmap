@@ -75,6 +75,11 @@ so cycling gets a wider view. A swipe on the watch overrides it for the rest of 
 
 **`MorseCue`** builds the haptic pattern for a manoeuvre, see the table in the README.
 
+**`SunAltitude`** works out how high the sun stands over a position at a moment, from the
+standard low precision solar model, and calls it dark below six degrees under the horizon, the
+civil twilight threshold. `Navigator` recomputes it on every fix and only asks the watch to
+keep the backlight on once it is dark, so the setting costs nothing in daylight.
+
 ## The watchapp
 
 `watchapp/src/c`, C against the Core Devices SDK 4.33.
@@ -86,8 +91,13 @@ so cycling gets a wider view. A swipe on the watch overrides it for the rest of 
   the zoom reacts before the phone has rendered anything.
 - `main.c` subscribes to the raw touch stream (zoom and backlight), the minute tick (clock)
   and AppMessage, and sends the hello and the zoom level. While the phone asks for the
-  backlight to stay on it also samples the accelerometer at 10 Hz and keeps the light on
-  whenever the watch faces up.
+  backlight to stay on it also samples the accelerometer at 25 Hz and lights the screen
+  whenever the watch is held to be read. That takes two axes: the face has to point up, with
+  the averaged z axis below minus 500 mg, and the wrist has to be raised, with the averaged y
+  axis below minus 200 mg. Either one relaxing past minus 350 mg or minus 80 mg darkens it
+  again, so a hand back on the handlebars is off while a glance at the map is on. The gaps
+  between the pairs keep the last state so a bump does not flicker the light, and five samples
+  per callback put the reaction at about a fifth of a second.
 - `ui.c` draws the three bands: arrow, distance, street and clock on top, the map, and at the
   bottom the time and distance left on the left with the arrival time on the right.
 - `haptics.c` plays a received vibration pattern.

@@ -11,8 +11,10 @@
 #define ZOOM_SEND_MAX_RETRIES 5
 #define DEFAULT_ZOOM (17 * ZOOM_SCALE)
 #define TILT_SAMPLES_PER_UPDATE 5
-#define FACE_UP_BELOW_MG -150
-#define FACE_DOWN_ABOVE_MG 150
+#define READING_FACE_BELOW_MG -500
+#define RIDING_FACE_ABOVE_MG -350
+#define READING_WRIST_BELOW_MG -200
+#define RIDING_WRIST_ABOVE_MG -80
 
 static Window *s_window;
 static Layer *s_layer;
@@ -26,7 +28,7 @@ static bool s_zoom_unsent;
 static uint8_t s_frames_since_liftoff;
 static uint8_t s_zoom_send_failures;
 static bool s_touch_lit;
-static bool s_face_up = true;
+static bool s_reading;
 static bool s_watching_tilt;
 
 static int32_t pow2_256(int32_t exponent_100) {
@@ -115,7 +117,7 @@ static void forget_zoom(void) {
 
 static void apply_light(void) {
   const NavState *state = nav_state_get();
-  bool keep_lit = state->active && state->keep_lit && s_face_up;
+  bool keep_lit = state->active && state->keep_lit && s_reading;
   light_enable(keep_lit || s_touch_lit);
 }
 
@@ -126,27 +128,30 @@ static void light_timer_fired(void *context) {
 }
 
 static void tilt_handler(AccelData *data, uint32_t samples) {
+  int32_t y = 0;
   int32_t z = 0;
   uint32_t still = 0;
   for (uint32_t i = 0; i < samples; i++) {
     if (data[i].did_vibrate) {
       continue;
     }
+    y += data[i].y;
     z += data[i].z;
     still++;
   }
   if (still == 0) {
     return;
   }
+  y /= (int32_t)still;
   z /= (int32_t)still;
-  bool face_up = s_face_up;
-  if (z < FACE_UP_BELOW_MG) {
-    face_up = true;
-  } else if (z > FACE_DOWN_ABOVE_MG) {
-    face_up = false;
+  bool reading = s_reading;
+  if (z < READING_FACE_BELOW_MG && y < READING_WRIST_BELOW_MG) {
+    reading = true;
+  } else if (z > RIDING_FACE_ABOVE_MG || y > RIDING_WRIST_ABOVE_MG) {
+    reading = false;
   }
-  if (face_up != s_face_up) {
-    s_face_up = face_up;
+  if (reading != s_reading) {
+    s_reading = reading;
     apply_light();
   }
 }
@@ -155,11 +160,12 @@ static void watch_tilt(bool wanted) {
   if (wanted != s_watching_tilt) {
     s_watching_tilt = wanted;
     if (wanted) {
+      s_reading = false;
       accel_data_service_subscribe(TILT_SAMPLES_PER_UPDATE, tilt_handler);
-      accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
+      accel_service_set_sampling_rate(ACCEL_SAMPLING_25HZ);
     } else {
       accel_data_service_unsubscribe();
-      s_face_up = true;
+      s_reading = false;
     }
   }
   apply_light();
