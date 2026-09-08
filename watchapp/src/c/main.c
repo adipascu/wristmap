@@ -12,9 +12,9 @@
 #define DEFAULT_ZOOM (17 * ZOOM_SCALE)
 #define TILT_SAMPLES_PER_UPDATE 5
 #define READING_FACE_BELOW_MG -500
-#define RIDING_FACE_ABOVE_MG -350
+#define LOWERED_FACE_ABOVE_MG -350
 #define READING_WRIST_BELOW_MG -200
-#define RIDING_WRIST_ABOVE_MG -80
+#define LOWERED_WRIST_ABOVE_MG -80
 
 static Window *s_window;
 static Layer *s_layer;
@@ -147,7 +147,7 @@ static void tilt_handler(AccelData *data, uint32_t samples) {
   bool reading = s_reading;
   if (z < READING_FACE_BELOW_MG && y < READING_WRIST_BELOW_MG) {
     reading = true;
-  } else if (z > RIDING_FACE_ABOVE_MG || y > RIDING_WRIST_ABOVE_MG) {
+  } else if (z > LOWERED_FACE_ABOVE_MG || y > LOWERED_WRIST_ABOVE_MG) {
     reading = false;
   }
   if (reading != s_reading) {
