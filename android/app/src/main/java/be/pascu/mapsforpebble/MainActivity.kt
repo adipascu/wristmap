@@ -88,9 +88,9 @@ class MainActivity : AppCompatActivity() {
             setOnCheckedChangeListener { _, checked -> Navigator.preferences.hapticCues = checked }
         }
         findViewById<Switch>(R.id.keep_backlight_on).apply {
-            isChecked = Navigator.preferences.keepBacklightOnWhileCycling
+            isChecked = Navigator.preferences.keepBacklightOn
             setOnCheckedChangeListener { _, checked ->
-                Navigator.preferences.keepBacklightOnWhileCycling = checked
+                Navigator.preferences.keepBacklightOn = checked
                 Navigator.onPreferencesChanged()
             }
         }

@@ -110,15 +110,12 @@ is longer than 1.5 s. The cue plays when an instruction first appears and once m
 turn is 40 m away. The phone builds the pattern (`MorseCue`) and sends it with the
 instruction, the watch only plays it.
 
-With "Keep the backlight on when cycling in the dark" switched on in the phone app (on by
-default), the backlight follows your wrist for the rest of a cycling trip after dark. Raise and
-turn your wrist to read the watch and the light comes on within about a fifth of a second, put
-your hand back on the handlebars and it goes off again, with no timer in between. Three things
-have to be true at once. The phone decides two of them: that you are cycling, from ten seconds
-at 3.5 m/s or more, since Google Maps does not say which mode is navigating, and that it is
-dark, from the sun's altitude at your position and the time of day. The watch decides the
-third, that it is held to be read, from its accelerometer. The five second touch backlight
-works on every trip.
+With "Keep the backlight on in the dark" switched on in the phone app (on by default), the
+backlight follows your wrist on any trip after dark. Raise and turn your wrist to read the watch
+and the light comes on within about a fifth of a second, lower it again and the light goes off,
+with no timer in between. The phone decides that it is dark, from the sun's altitude at your
+position and the time of day, and the watch decides that it is held to be read, from its
+accelerometer. The five second touch backlight works whatever the light is doing.
 
 The companion needs the Core Devices Pebble app (`coredevices.coreapp`). It is the only Android
 app that implements PebbleKit Android 2, which the companion uses to talk to the watch.

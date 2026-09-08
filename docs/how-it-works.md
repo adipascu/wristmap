@@ -95,7 +95,7 @@ keep the backlight on once it is dark, so the setting costs nothing in daylight.
   whenever the watch is held to be read. That takes two axes: the face has to point up, with
   the averaged z axis below minus 500 mg, and the wrist has to be raised, with the averaged y
   axis below minus 200 mg. Either one relaxing past minus 350 mg or minus 80 mg darkens it
-  again, so a hand back on the handlebars is off while a glance at the map is on. The gaps
+  again, so an arm at rest is off while a glance at the map is on. The gaps
   between the pairs keep the last state so a bump does not flicker the light, and five samples
   per callback put the reaction at about a fifth of a second.
 - `ui.c` draws the three bands: arrow, distance, street and clock on top, the map, and at the
