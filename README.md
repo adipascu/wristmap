@@ -260,6 +260,21 @@ byte aligned, exactly the layout of `GBitmapFormat2BitPalette`. Palette: 0 white
 - **Anti-aliasing is the enemy of a 4 colour display.** With every paint set to
   `isAntiAlias = false` every pixel lands exactly on a palette entry and the map stays crisp.
 
+## Icon
+
+`branding/icon.svg` is the store icon: a route turning onto the street ahead, with your position
+at its start, drawn in blue and white on a dark rounded square. The store renders it at 144 and
+48 pixels. Its glyph sits in the middle of the square, 20.5 units of clear space to the left and
+right and 16.5 above and below, on a 144 unit grid.
+
+`watchapp/resources/images/menu_icon.png` is the same motif redrawn by hand for the watch menu,
+25 by 25 pixels of black and blue on white, and it is centred the same way. It is a separate
+drawing rather than a rendering of the SVG, because the shapes have to land on whole pixels at
+that size.
+
+The Android launcher and the notification use a different mark, an arrow, defined in
+`android/app/src/main/res/`.
+
 ## Credits
 
 - The notification reading approach (recover the RemoteViews, walk every TextView, take the
