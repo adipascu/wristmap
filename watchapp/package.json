@@ -34,7 +34,7 @@
         "url": "https://github.com/peblum/maps-for-pebble",
         "apps": [
           {
-            "package": "be.pascu.mapsforpebble"
+            "package": "org.peblum.mapsforpebble"
           }
         ]
       }

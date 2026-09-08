@@ -27,5 +27,5 @@ frame errors. The Pebble app logs every packet to and from the watch under the
 `PebbleProtocol` tags, which shows whether messages were acknowledged.
 
 The companion writes the last rendered frame to its cache directory as `preview.png` and
-`last-frame.wmf`. On a debug build they can be pulled with `run-as be.pascu.mapsforpebble`, and the
+`last-frame.wmf`. On a debug build they can be pulled with `run-as org.peblum.mapsforpebble`, and the
 `.wmf` can be replayed into the emulator with `scripts/emu-send.py --frame`.

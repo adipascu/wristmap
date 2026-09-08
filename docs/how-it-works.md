@@ -27,7 +27,7 @@ NavigationService ──GPS fix──▶     Navigator  ◀── WatchListenerS
 
 ## The companion, piece by piece
 
-All of it lives in `android/app/src/main/java/be/pascu/mapsforpebble`.
+All of it lives in `android/app/src/main/java/org/peblum/mapsforpebble`.
 
 **`Navigator`** is the process-wide coordinator. Every external event (a Maps notification
 posted or removed, the location service starting, stopping or failing) is queued into one

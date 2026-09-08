@@ -22,11 +22,11 @@ val releaseStoreFile = signingValue("storeFile", "KEYSTORE_FILE")
 val hasReleaseKeystore = releaseStoreFile != null && rootProject.file(releaseStoreFile).exists()
 
 android {
-    namespace = "be.pascu.mapsforpebble"
+    namespace = "org.peblum.mapsforpebble"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "be.pascu.mapsforpebble"
+        applicationId = "org.peblum.mapsforpebble"
         minSdk = 26
         targetSdk = 36
         versionCode = 3
@@ -72,17 +72,17 @@ kover {
         filters {
             excludes {
                 classes(
-                    "be.pascu.mapsforpebble.MainActivity*",
-                    "be.pascu.mapsforpebble.MapsForPebbleApp",
-                    "be.pascu.mapsforpebble.Navigator*",
-                    "be.pascu.mapsforpebble.Preferences",
-                    "be.pascu.mapsforpebble.service.*",
-                    "be.pascu.mapsforpebble.pebble.WatchLink*",
-                    "be.pascu.mapsforpebble.pebble.WatchListenerService",
-                    "be.pascu.mapsforpebble.map.MapRenderer*",
-                    "be.pascu.mapsforpebble.map.TileStore*",
-                    "be.pascu.mapsforpebble.nav.GoogleMapsNotification*",
-                    "be.pascu.mapsforpebble.nav.NotificationRead*",
+                    "org.peblum.mapsforpebble.MainActivity*",
+                    "org.peblum.mapsforpebble.MapsForPebbleApp",
+                    "org.peblum.mapsforpebble.Navigator*",
+                    "org.peblum.mapsforpebble.Preferences",
+                    "org.peblum.mapsforpebble.service.*",
+                    "org.peblum.mapsforpebble.pebble.WatchLink*",
+                    "org.peblum.mapsforpebble.pebble.WatchListenerService",
+                    "org.peblum.mapsforpebble.map.MapRenderer*",
+                    "org.peblum.mapsforpebble.map.TileStore*",
+                    "org.peblum.mapsforpebble.nav.GoogleMapsNotification*",
+                    "org.peblum.mapsforpebble.nav.NotificationRead*",
                 )
             }
         }

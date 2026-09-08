@@ -18,8 +18,9 @@ on the phone beyond the permissions below.
 1. **Watchapp**: open `maps-for-pebble.pbw` from the latest GitHub release in the Pebble app. The app
    asks to install it on the connected watch.
 2. **Companion**: install `maps-for-pebble.apk` from the same release. Android warns about an app
-   from outside the Play Store, allow it. If the earlier Wristmap build is on the phone, uninstall
-   it first. It is a separate package and both would mirror the same directions.
+   from outside the Play Store, allow it. If an earlier build is on the phone, uninstall it first.
+   Releases before 2.0.0 used `be.pascu.mapsforpebble` and Wristmap used its own name again, so
+   they install alongside this one and both would mirror the same directions.
 3. Open Maps Navigation once. The setup section lists the three permissions below, with a button for
    each that is still missing, and whether a Pebble app is installed:
    - **Notification access**. Android sends every notification to Maps Navigation, which only
